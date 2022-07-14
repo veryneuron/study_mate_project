@@ -26,25 +26,11 @@ def print_face(shape, gray):
     cv2.polylines(gray, [frontal_face], True, (255, 255, 0))
 
 #눈동자 마스킹
-def eye_position(shape, gray):
+def eye_position(shape, gray, left, right):
     #threshold 값
     thresh_value = 70
     gaze_left = 2
     gaze_right = 2
-
-    left = np.array([[shape.part(36).x, shape.part(36).y],
-                     [shape.part(37).x, shape.part(37).y],
-                     [shape.part(38).x, shape.part(38).y],
-                     [shape.part(39).x, shape.part(39).y],
-                     [shape.part(40).x, shape.part(40).y],
-                     [shape.part(41).x, shape.part(41).y]], np.int32)
-
-    right = np.array([[shape.part(42).x, shape.part(42).y],
-                     [shape.part(43).x, shape.part(43).y],
-                     [shape.part(44).x, shape.part(44).y],
-                     [shape.part(45).x, shape.part(45).y],
-                     [shape.part(46).x, shape.part(46).y],
-                     [shape.part(47).x, shape.part(47).y]], np.int32)
 
     #동공 마스킹
     mask = np.zeros(gray.shape[:2], dtype=np.uint8)
@@ -54,14 +40,6 @@ def eye_position(shape, gray):
 
     _, _thresh = cv2.threshold(eye, thresh_value, 255, cv2.THRESH_BINARY)
 
-    mid = (shape.part(42).x + shape.part(39).x) // 2
-
-    mid_left = (shape.part(36).x + shape.part(39).x) // 2
-    mid_right = (shape.part(42).x + shape.part(45).x) // 2
-
-    gaze_left = gaze_check(_thresh[:, 0:mid], mid_left, gray)
-    gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid), gray)
-
     #thresh = cv2.erode(thresh, None, iterations=1)
     #thresh = cv2.dilate(thresh, None, iterations=3)
     #thresh = cv2.medianBlur(thresh, 1)
@@ -69,22 +47,13 @@ def eye_position(shape, gray):
     #print("left : " + str(gaze_left))
     #print("right : " + str(gaze_right))
 
-    # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
-    if gaze_left == 1 and gaze_right == 1:  # 0일때
-        print("watch left")
-    elif gaze_left == 0 and gaze_right == 0:  # 1일때
-        print("watch right")
-    else:
-        pass
-
-    cv2.imshow("Gray", gray)
-    cv2.imshow("Thresh", _thresh)
+    return _thresh
 
 #바라보는방향
-def gaze_check(thresh, mid, gray):
+def gaze_check(thresh, mid):
     #좌우 민감도
-    sensitivity_right = 200
-    sensitivity_left = 200
+    sensitivity_right = 250
+    sensitivity_left = 250
 
     #눈 중앙 기준 흰자 영역 왼쪽 오른쪽 contouring
     cnts_left, _ = cv2.findContours(thresh[:, 0:mid], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -151,10 +120,42 @@ def main():
         #얼굴 인식
         for face in faces:
             shape = predictor(gray, face)
+
+            left = np.array([[shape.part(36).x, shape.part(36).y],
+                             [shape.part(37).x, shape.part(37).y],
+                             [shape.part(38).x, shape.part(38).y],
+                             [shape.part(39).x, shape.part(39).y],
+                             [shape.part(40).x, shape.part(40).y],
+                             [shape.part(41).x, shape.part(41).y]], np.int32)
+
+            right = np.array([[shape.part(42).x, shape.part(42).y],
+                              [shape.part(43).x, shape.part(43).y],
+                              [shape.part(44).x, shape.part(44).y],
+                              [shape.part(45).x, shape.part(45).y],
+                              [shape.part(46).x, shape.part(46).y],
+                              [shape.part(47).x, shape.part(47).y]], np.int32)
+
             #얼굴 범위 출력
             #print_face(shape, gray)
-            eye_position(shape, gray)
+            _thresh = eye_position(shape, gray, left, right)
 
+            mid = (shape.part(42).x + shape.part(39).x) // 2
+
+            mid_left = (shape.part(36).x + shape.part(39).x) // 2
+            mid_right = (shape.part(42).x + shape.part(45).x) // 2
+
+            gaze_left = gaze_check(_thresh[:, 0:mid], mid_left)
+            gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid))
+
+            # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
+            if gaze_left == 1 and gaze_right == 1:  # 0일때
+                print("watch left")
+            elif gaze_left == 0 and gaze_right == 0:  # 1일때
+                print("watch right")
+            else:
+                pass
+
+            cv2.imshow("Thresh", _thresh)
 
         key = cv2.waitKey(1)
 
