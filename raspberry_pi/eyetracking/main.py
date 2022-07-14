@@ -3,30 +3,10 @@ import numpy as np
 import dlib
 
 #바라보는방향
-def gaze_check(shape, thresh, mid, img, right_eye=False):
-    left = np.array([[shape.part(36).x, shape.part(36).y],
-                     [shape.part(37).x, shape.part(37).y],
-                     [shape.part(38).x, shape.part(38).y],
-                     [shape.part(39).x, shape.part(39).y],
-                     [shape.part(40).x, shape.part(40).y],
-                     [shape.part(41).x, shape.part(41).y]], np.int32)
-
-    right = np.array([[shape.part(42).x, shape.part(42).y],
-                     [shape.part(43).x, shape.part(43).y],
-                     [shape.part(44).x, shape.part(44).y],
-                     [shape.part(45).x, shape.part(45).y],
-                     [shape.part(46).x, shape.part(46).y],
-                     [shape.part(47).x, shape.part(47).y]], np.int32)
-
+def gaze_check(thresh, mid, gray):
     #좌우 민감도
-    sensitivity_right = 250
+    sensitivity_right = 200
     sensitivity_left = 200
-
-    if right_eye:
-        mid = (shape.part(42).x + shape.part(45).x) // 2
-    else:
-        mid = (shape.part(36).x + shape.part(39).x) // 2
-
 
     #눈 중앙 기준 흰자 영역 왼쪽 오른쪽 contouring
     cnts_left, _ = cv2.findContours(thresh[:, 0: mid], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -38,6 +18,9 @@ def gaze_check(shape, thresh, mid, img, right_eye=False):
         cnt_left = max(cnts_left, key=cv2.contourArea)
         cnt_right = max(cnts_right, key=cv2.contourArea)
 
+        cv2.drawContours(gray, [cnt_left], 0, (0, 0, 255), 1)
+        cv2.drawContours(gray, [cnt_right], 0, (0, 0, 255), 1)
+
         area_left = cv2.contourArea(cnt_left)
         area_right = cv2.contourArea(cnt_right)
 
@@ -46,11 +29,11 @@ def gaze_check(shape, thresh, mid, img, right_eye=False):
         #print("\n")
 
         if int(area_left - area_right) > sensitivity_left:
-            print("watch left")
-            return [thresh, 1]
+            #print("watch left")
+            return 1
         elif int(area_right - area_left) > sensitivity_right:
-            print("watch right")
-            return [thresh, 0]
+            #print("watch right")
+            return 0
 
         """
         cnts, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -127,17 +110,31 @@ def eye_position(shape, gray):
 
     _, thresh = cv2.threshold(eye, thresh_value, 255, cv2.THRESH_BINARY)
 
+    mid = (shape.part(42).x + shape.part(39).x) // 2
+
+    mid_left = (shape.part(36).x + shape.part(39).x) // 2
+    mid_right = (shape.part(42).x + shape.part(45).x) // 2
+
+    gaze_left = gaze_check(thresh[:, 0:mid], mid_left, gray)
+    gaze_right = gaze_check(thresh[:, mid:], mid_right, gray)
 
     #thresh = cv2.erode(thresh, None, iterations=1)
     #thresh = cv2.dilate(thresh, None, iterations=3)
     #thresh = cv2.medianBlur(thresh, 1)
 
-    mid = (shape.part(42).x + shape.part(39).x) // 2
+    #print("left : " + str(gaze_left))
+    #print("right : " + str(gaze_right))
 
-    return [thresh, mid]
+    # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
+    if gaze_left and gaze_right:  # 0일때
+        print("watch left")
+    elif gaze_left == 0 and gaze_right == 0:  # 1일때
+        print("watch right")
+    else:
+        pass
 
-    #mid_left = (shape.part(36).x + shape.part(39).x) // 2
-    #mid_right = (shape.part(42).x + shape.part(45).x) // 2
+    cv2.imshow("Gray", gray)
+    cv2.imshow("Thresh", thresh)
 
 
 def main():
@@ -157,21 +154,7 @@ def main():
             shape = predictor(gray, face)
             #얼굴 범위 출력
             #print_face(shape, gray)
-            [_thresh, mid] = eye_position(shape, gray)
-
-            # 응시 방향
-            [_thresh, gaze_left] = gaze_check(shape, _thresh[:, 0:mid], mid, gray)
-            [_thresh, gaze_right]  = gaze_check(shape, _thresh[:, mid:], mid, gray, True)
-
-            # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
-            if gaze_left and gaze_right:  # 0일때
-                print("watch left")
-            elif gaze_left == 0 and gaze_right == 0:  # 1일때
-                print("watch right")
-            else:
-                pass
-
-            cv2.imshow("Thresh", _thresh)
+            eye_position(shape, gray)
 
 
         key = cv2.waitKey(1)
