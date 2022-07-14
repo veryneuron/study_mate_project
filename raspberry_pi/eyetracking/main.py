@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import dlib
 
-#test
-
 #바라보는방향
 def gaze_check(shape, thresh, mid, img, right_eye=False):
     left = np.array([[shape.part(36).x, shape.part(36).y],
