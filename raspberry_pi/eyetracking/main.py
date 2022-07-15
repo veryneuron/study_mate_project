@@ -2,6 +2,12 @@ import cv2
 import numpy as np
 import dlib
 
+global count_left
+global count_right
+
+global avg_sclera_left
+global avg_sclera_right
+
 #얼굴 위치 출력
 def print_face(shape, gray):
     frontal_face = np.array([[shape.part(19).x, shape.part(19).y],
@@ -50,10 +56,17 @@ def eye_position(shape, gray, left, right):
     return _thresh
 
 #바라보는방향
-def gaze_check(thresh, mid):
+def gaze_check(thresh, mid, right=False):
     #좌우 민감도
     sensitivity_right = 250
-    sensitivity_left = 250
+    sensitivity_left = 220
+
+    #흰자 평균값
+    global avg_sclera_left
+    global avg_sclera_right
+
+    global count_left
+    global count_right
 
     #눈 중앙 기준 흰자 영역 왼쪽 오른쪽 contouring
     cnts_left, _ = cv2.findContours(thresh[:, 0:mid], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -70,6 +83,27 @@ def gaze_check(thresh, mid):
 
         area_left = cv2.contourArea(cnt_left)
         area_right = cv2.contourArea(cnt_right)
+
+        if right:
+            if area_left > 50 and area_right > 50 and count_right < 10:
+                count_right += 1
+                avg_sclera_left[1] += int(area_left)
+                avg_sclera_right[1] += int(area_right)
+            elif count_right == 10:
+                count_right += 1
+                avg_sclera_right[1] = avg_sclera_right[1] / count_right
+                avg_sclera_left[1] = avg_sclera_left[1] / count_right
+                print("avg_right_eye_sclera_area : " + str(avg_sclera_right[1] + avg_sclera_left[1]))
+        elif right == False:
+            if area_left > 50 and area_right > 50 and count_left < 10:
+                count_left += 1
+                avg_sclera_left[0] += int(area_left)
+                avg_sclera_right[0] += int(area_right)
+            elif count_left == 10:
+                count_left += 1
+                avg_sclera_right[0] = avg_sclera_right[0] / count_left
+                avg_sclera_left[0] = avg_sclera_left[0] / count_left
+                print("avg_left_eye_sclera_area : " + str(avg_sclera_right[0] + avg_sclera_left[0]))
 
         #print("area_left: " + str(area_left))
         #print("area_right: " + str(area_right))
@@ -105,11 +139,62 @@ def gaze_check(thresh, mid):
             pass
         """
 
+#집중도 체크
+def concent(thresh, mid):
+    #흰자 크기 민감도
+    sclera_sensitivity = 1000
+    area_sclera = 0
+
+    #이전 10번의 평균값 저장한 뒤 평균과 비교
+
+
+    #눈 중앙 기준 흰자 영역 왼쪽 오른쪽 contouring
+    cnts_left, _ = cv2.findContours(thresh[:, 0:mid], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    cnts_right, _ = cv2.findContours(thresh[:, mid:], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    #contourArea 일정 크기 이상 ->
+    if len(cnts_left) != 0 and len(cnts_right) != 0:
+
+        #cv2.drawContours(gray, cnts_left, 0, (0, 0, 255), 2)
+        #cv2.drawContours(gray, cnts_right, 0, (0, 0, 255), 2)
+
+        cnt_left = max(cnts_left, key=cv2.contourArea)
+        cnt_right = max(cnts_right, key=cv2.contourArea)
+
+        area_left = cv2.contourArea(cnt_left)
+        area_right = cv2.contourArea(cnt_right)
+
+        #흰자 영역
+        area_sclera = area_left + area_right
+        #print("area_sclera : " + str(area_sclera))
+
+        #흰자 영역이 매우 클 경우
+        #1.시야 범위가 독서대 바깥으로 이동
+        #2.눈을 감은경우
+        if area_sclera >= sclera_sensitivity:
+            #집중
+            return True
+        else:
+            #집중x
+            return False
+
 def main():
+    global count_left
+    global count_right
+    global avg_sclera_left
+    global avg_sclera_right
 
     cap = cv2.VideoCapture(0)
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor("shape_68.dat")
+
+    #sclera 평균 연산 카운트용
+    count_left = 0
+    count_right = 0
+
+    #sclera 평균 넓이 좌, 우
+    avg_sclera_left = np.array([0, 0])
+    avg_sclera_right = np.array([0, 0])
 
     while True:
         _, frame = cap.read()
@@ -145,7 +230,10 @@ def main():
             mid_right = (shape.part(42).x + shape.part(45).x) // 2
 
             gaze_left = gaze_check(_thresh[:, 0:mid], mid_left)
-            gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid))
+            gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid), True)
+
+            con_left = concent(_thresh[:, 0:mid], mid_left)
+            con_right = concent(_thresh[:, mid:], (mid_right - mid))
 
             # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
             if gaze_left == 1 and gaze_right == 1:  # 0일때
@@ -154,6 +242,9 @@ def main():
                 print("watch right")
             else:
                 pass
+
+            if con_right and con_left:
+                print("과도하게 눈을 움직임")
 
             cv2.imshow("Thresh", _thresh)
 
