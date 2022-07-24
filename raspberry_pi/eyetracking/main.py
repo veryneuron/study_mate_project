@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import dlib
+import time
 
 global count_left
 global count_right
@@ -92,6 +93,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 avg_sclera_left[1] = avg_sclera_left[1] / count_right
                 #print("avg_right_eye_sclera_area[left]: " + str(avg_sclera_left[1]))
                 #print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
+                print("right done")
         elif right == False:
             if area_left > 100 and area_right > 100 and count_left < 10:
                 count_left += 1
@@ -103,6 +105,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 avg_sclera_left[0] = avg_sclera_left[0] / count_left
                 #print("avg_left_eye_sclera_area[left]: " + str(avg_sclera_left[0]))
                 #print("avg_left_eye_sclera_area[right]: " + str(avg_sclera_right[0]))
+                print("left done")
 
 
 #바라보는방향
@@ -284,6 +287,14 @@ def main():
     global avg_sclera_left
     global avg_sclera_right
 
+    face_count = 0
+
+    start_time = 0
+    end_time = 0
+
+    count_con = 0
+    count_uncon = 0
+
     cap = cv2.VideoCapture(0)
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor("shape_68.dat")
@@ -309,6 +320,7 @@ def main():
 
         # 얼굴 인식
         for face in faces:
+            face_count += 1
             shape = predictor(gray, face)
 
             left = np.array([[shape.part(36).x, shape.part(36).y],
@@ -343,6 +355,7 @@ def main():
                 calcul_sclera_avg(_thresh[:, mid:], (mid_right - mid), True)
                 base_length = shape.part(16).x - shape.part(0).x
 
+
             # 평균 흰자영역 계산 후 연산
             if count_left >= 10 and count_right >= 10:
 
@@ -353,22 +366,52 @@ def main():
                 gaze_left = gaze_check(_thresh[:, 0:mid], mid_left, rate_of_change)
                 gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid), rate_of_change, True)
 
-                con_left = concent(_thresh[:, 0:mid], avg_sclera_left[0], avg_sclera_right[0], mid_left)
-                con_right = concent(_thresh[:, mid:], avg_sclera_left[1], avg_sclera_right[1], (mid_right - mid))
+                #con_left = concent(_thresh[:, 0:mid], avg_sclera_left[0], avg_sclera_right[0], mid_left)
+                #con_right = concent(_thresh[:, mid:], avg_sclera_left[1], avg_sclera_right[1], (mid_right - mid))
 
                 # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
                 if gaze_left == 1 and gaze_right == 1:
                     print("다른곳응시")
-                else:
-                    pass
+                    count_uncon += 1
+                    #집중을 안하다가
+                    #잠시 오류로 집중
+                    if start_time == 0 and count_uncon >= 5 and count_con != 0:
+                        count_con = 0
 
+                else:
+                    #집중을 하다가
+                    count_con += 1
+                    #잠시 오류로 집중x
+                    if start_time == 0 and count_con >= 5 and count_uncon != 0:
+                        count_uncon = 0
+
+                """
                 if con_right and con_left:
                     print("과도하게 눈을 움직임")
+                """
                 print("")
+
+                #집중을 하다가 잠시 집중 안하는 경우
+
+                #집중x
+                if count_uncon == 10:
+                    start_time = int(time.time())
+                    #집중을 안하다가 잠시 오류로 집중
+                #다시집중
+                elif count_uncon >= 10 and count_con == 10:
+                    end_time = int(time.time())
+                    print("집중x : " + str(end_time - start_time))
+                    start_time = 0
+                    end_time = 0
 
             cv2.imshow("Thresh", _thresh)
 
         key = cv2.waitKey(1)
+
+        if face_count == 0:
+            print("자리비움")
+
+        face_count = 0
 
         #ESC 입력 시 종료
         if key == 27:
