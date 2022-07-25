@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRE_ID}
+    password: ${POSTGRE_PW}
+    url: jdbc:postgresql://${POSTGRE_ADDRESS}/study_mate
+    hikari:
+      connectionTimeout: 10000
+      maximumPoolSize: 10
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    database: postgresql
+server:
+  port: 8000
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: TRACE
