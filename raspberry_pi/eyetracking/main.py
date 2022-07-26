@@ -36,6 +36,7 @@ def print_face(shape, gray):
                              [shape.part(24).x, shape.part(24).y]], np.int32)
     cv2.polylines(gray, [frontal_face], True, (255, 255, 0))
 
+
 #눈동자 마스킹
 def eye_position(shape, gray, left, right):
     #threshold 값
@@ -57,6 +58,7 @@ def eye_position(shape, gray, left, right):
     #print("right : " + str(gaze_right))
 
     return _thresh
+
 
 #흰자영역 평균크기 계산
 def calcul_sclera_avg(thresh, mid, right=False):
@@ -216,18 +218,24 @@ def gaze_check(thresh, mid, ratio, right=False):
                 #print("왼쪽 시선 벗어남")
                 return 1
 
+
+"""
 #고개 좌우 체크
-def head_pose(face):
+def head_pose(face, ratio):
     face_left = face[0][0]
     face_right = face[1][0]
     face_mid = face[2][0]
 
+    sensitivity_left = 100
+    sensitivity_right = 100
 
     length_left = face_mid - face_left
     length_right = face_right - face_mid
 
-    #print("length_left : " + str(length_left))
-    #print("length_right : " + str(length_right))
+    print("length_left : " + str(length_left))
+    print("length_right : " + str(length_right))
+"""
+
 
 #얼굴 크기 변화율 계산
 def calcul_ratio(face, base_length):
@@ -239,6 +247,7 @@ def calcul_ratio(face, base_length):
     ratio = round(ratio, 2)
 
     return ratio
+
 
 """
 #집중도 체크
@@ -279,6 +288,7 @@ def concent(thresh, mid, sclera_left, sclera_right):
         else:
             return True
 """
+
 
 def main():
     global count_left
@@ -361,7 +371,7 @@ def main():
 
                 rate_of_change = calcul_ratio(head, base_length)
                 #print("rate_of_change : " + str(rate_of_change))
-                head_pose(head)
+                #head_pose(head, rate_of_change)
 
                 gaze_left = gaze_check(_thresh[:, 0:mid], mid_left, rate_of_change)
                 gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid), rate_of_change, True)
@@ -373,17 +383,8 @@ def main():
                 if gaze_left == 1 and gaze_right == 1:
                     print("다른곳응시")
                     count_uncon += 1
-                    #집중을 안하다가
-                    #잠시 오류로 집중
-                    if start_time == 0 and count_uncon >= 5 and count_con != 0:
-                        count_con = 0
-
                 else:
-                    #집중을 하다가
                     count_con += 1
-                    #잠시 오류로 집중x
-                    if start_time == 0 and count_con >= 5 and count_uncon != 0:
-                        count_uncon = 0
 
                 """
                 if con_right and con_left:
@@ -391,25 +392,12 @@ def main():
                 """
                 print("")
 
-                #집중을 하다가 잠시 집중 안하는 경우
-
-                #집중x
-                if count_uncon == 10:
-                    start_time = int(time.time())
-                    #집중을 안하다가 잠시 오류로 집중
-                #다시집중
-                elif count_uncon >= 10 and count_con == 10:
-                    end_time = int(time.time())
-                    print("집중x : " + str(end_time - start_time))
-                    start_time = 0
-                    end_time = 0
-
-            cv2.imshow("Thresh", _thresh)
+            #cv2.imshow("Thresh", _thresh)
 
         key = cv2.waitKey(1)
 
         if face_count == 0:
-            print("자리비움")
+            print("자리비움 or 고개돌림")
 
         face_count = 0
 
