@@ -14,6 +14,7 @@ global count_right
 global avg_sclera_left
 global avg_sclera_right
 
+"""
 #얼굴 위치 출력
 def print_face(shape, gray):
     frontal_face = np.array([[shape.part(19).x, shape.part(19).y],
@@ -36,7 +37,7 @@ def print_face(shape, gray):
                              [shape.part(16).x, shape.part(16).y],
                              [shape.part(24).x, shape.part(24).y]], np.int32)
     cv2.polylines(gray, [frontal_face], True, (255, 255, 0))
-
+"""
 
 #눈동자 마스킹
 def eye_position(shape, gray, left, right):
@@ -86,7 +87,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
         area_right = cv2.contourArea(cnt_right)
 
         if right:
-            if area_left > 80 and area_right > 80 and count_right < 10:
+            if area_left > 60 and area_right > 60 and count_right < 10:
                 count_right += 1
                 avg_sclera_left[1] += int(area_left)
                 avg_sclera_right[1] += int(area_right)
@@ -98,7 +99,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
                 print("right done")
         elif right == False:
-            if area_left > 70 and area_right > 70 and count_left < 10:
+            if area_left > 50 and area_right > 50 and count_left < 10:
                 count_left += 1
                 avg_sclera_left[0] += int(area_left)
                 avg_sclera_right[0] += int(area_right)
@@ -317,6 +318,9 @@ def main():
     count_con = 0
     count_uncon = 0
 
+    arr_temp = []
+    count = 0
+
     cap = cv2.VideoCapture(0)
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor("shape_68.dat")
@@ -399,18 +403,46 @@ def main():
 
                 if ear_left <= eye_ar_thresh and ear_right <= eye_ar_thresh:
                     print("눈감음 감지")
-
-                # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
-                if gaze_left == 1 and gaze_right == 1:
-                    print("다른곳응시")
                     count_uncon += 1
+                    temp = 1
+                    count += 1
                 else:
-                    count_con += 1
+                    # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
+                    if gaze_left == 1 and gaze_right == 1:
+                        print("다른곳응시")
+                        count_uncon += 1
+                        temp = 1
+                    else:
+                        count_con += 1
+                        temp = 0
+                    count += 1
+
+                if count <= 10:
+                    arr_temp.append(temp)
+                else:
+                    del arr_temp[0]
+                    arr_temp.append(temp)
+
+                if len(arr_temp) == 10:
+                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 7:
+                        start_time = int(time.time())
+                        print("start time : " + str(start_time))
+                        count_uncon = 0
+                        count_con = 0
+                    elif start_time != 0 and count_con >= 10 and arr_temp.count(0) > 7:
+                        end_time = int(time.time())
+                        count_uncon = 0
+                        count_con = 0
+                        print("time : " + str(end_time - start_time))
+                        start_time = 0
+                        end_time = 0
+
 
                 """
                 if con_right and con_left:
                     print("과도하게 눈을 움직임")
                 """
+                temp = 0
                 print("")
 
             #cv2.imshow("Thresh", _thresh)
@@ -419,6 +451,7 @@ def main():
 
         if face_count == 0:
             print("자리비움 or 고개돌림")
+            count_uncon += 1
 
         face_count = 0
 
