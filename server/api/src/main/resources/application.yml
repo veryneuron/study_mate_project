@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    username: ${POSTGRE_ID}
-    password: ${POSTGRE_PW}
-    url: jdbc:postgresql://${POSTGRE_ADDRESS}/study_mate
+    username: ${POSTGRES_ID}
+    password: ${POSTGRES_PW}
+    url: jdbc:postgresql://localhost/study_mate
     hikari:
       connectionTimeout: 10000
       maximumPoolSize: 10
@@ -18,3 +18,4 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type: TRACE
+secret-key: ${JWT_SECRET}
