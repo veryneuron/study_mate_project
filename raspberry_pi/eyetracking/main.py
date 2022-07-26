@@ -86,7 +86,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
         area_right = cv2.contourArea(cnt_right)
 
         if right:
-            if area_left > 100 and area_right > 100 and count_right < 10:
+            if area_left > 80 and area_right > 80 and count_right < 10:
                 count_right += 1
                 avg_sclera_left[1] += int(area_left)
                 avg_sclera_right[1] += int(area_right)
@@ -94,11 +94,11 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 count_right += 1
                 avg_sclera_right[1] = avg_sclera_right[1] / count_right
                 avg_sclera_left[1] = avg_sclera_left[1] / count_right
-                #print("avg_right_eye_sclera_area[left]: " + str(avg_sclera_left[1]))
-                #print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
+                print("avg_right_eye_sclera_area[left]: " + str(avg_sclera_left[1]))
+                print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
                 print("right done")
         elif right == False:
-            if area_left > 100 and area_right > 100 and count_left < 10:
+            if area_left > 70 and area_right > 70 and count_left < 10:
                 count_left += 1
                 avg_sclera_left[0] += int(area_left)
                 avg_sclera_right[0] += int(area_right)
@@ -106,8 +106,8 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 count_left += 1
                 avg_sclera_right[0] = avg_sclera_right[0] / count_left
                 avg_sclera_left[0] = avg_sclera_left[0] / count_left
-                #print("avg_left_eye_sclera_area[left]: " + str(avg_sclera_left[0]))
-                #print("avg_left_eye_sclera_area[right]: " + str(avg_sclera_right[0]))
+                print("avg_left_eye_sclera_area[left]: " + str(avg_sclera_left[0]))
+                print("avg_left_eye_sclera_area[right]: " + str(avg_sclera_right[0]))
                 print("left done")
 
 
@@ -394,8 +394,8 @@ def main():
                 ear_left = eye_aspect_ratio(left)
                 ear_right = eye_aspect_ratio(right)
 
-                print("ear left : " + str(ear_left))
-                print("ear right : " + str(ear_right))
+                #print("ear left : " + str(ear_left))
+                #print("ear right : " + str(ear_right))
 
                 if ear_left <= eye_ar_thresh and ear_right <= eye_ar_thresh:
                     print("눈감음 감지")
