@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import dlib
+from scipy.spatial import distance
 import time
 
 global count_left
@@ -248,6 +249,15 @@ def calcul_ratio(face, base_length):
 
     return ratio
 
+#눈 감음 인식 (EAR 알고리즘)
+def eye_aspect_ratio(eye):
+    A = distance.euclidean(eye[1], eye[5])
+    B = distance.euclidean(eye[2], eye[4])
+    C = distance.euclidean(eye[0], eye[3])
+
+    ear = (A+B) / (2.0 * C)
+
+    return ear
 
 """
 #집중도 체크
@@ -296,6 +306,8 @@ def main():
 
     global avg_sclera_left
     global avg_sclera_right
+
+    eye_ar_thresh = 0.25
 
     face_count = 0
 
@@ -378,6 +390,15 @@ def main():
 
                 #con_left = concent(_thresh[:, 0:mid], avg_sclera_left[0], avg_sclera_right[0], mid_left)
                 #con_right = concent(_thresh[:, mid:], avg_sclera_left[1], avg_sclera_right[1], (mid_right - mid))
+
+                ear_left = eye_aspect_ratio(left)
+                ear_right = eye_aspect_ratio(right)
+
+                print("ear left : " + str(ear_left))
+                print("ear right : " + str(ear_right))
+
+                if ear_left <= eye_ar_thresh and ear_right <= eye_ar_thresh:
+                    print("눈감음 감지")
 
                 # 정확성 높이기 위해 양쪽 눈 응시 방향 일치 시 움직임 인식
                 if gaze_left == 1 and gaze_right == 1:
