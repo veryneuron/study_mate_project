@@ -5,5 +5,7 @@
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/main" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pi/aws-iot-device-sdk-python" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pi/aws-iot-device-sdk-python-v2" vcs="Git" />
   </component>
 </project>
