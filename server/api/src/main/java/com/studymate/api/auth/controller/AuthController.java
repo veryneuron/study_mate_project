@@ -35,11 +35,11 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/signing")
+    @GetMapping("/signin")
     public ResponseEntity<?> signing(@Valid @RequestBody StudyUserDTO studyUserDTO) {
         try {
             StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
-            Optional<StudyUser> signedUser = authService.authenticate(studyUser.getUserId());
+            Optional<StudyUser> signedUser = authService.authenticate(studyUser.getUserId(), studyUser.getUserPassword());
             if (signedUser.isPresent()) {
                 final String jwtToken = jwtTokenProvider.createToken(signedUser.get().getUserId());
                 return ResponseEntity.ok().body(jwtToken);

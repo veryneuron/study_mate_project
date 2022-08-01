@@ -26,14 +26,16 @@ public class AuthService {
             log.info("Cannot save user - existing user");
             throw new IllegalArgumentException("UserId already exists");
         }
+        studyUser.setUserPassword(passwordEncoder.encode(studyUser.getUserPassword()));
         return studyUserRepository.save(studyUser);
     }
 
-    public Optional<StudyUser> authenticate(final String userId) {
+    public Optional<StudyUser> authenticate(final String userId, String userPassword) {
         if (userId == null) {
             log.warn("Illegal argument");
             throw new IllegalArgumentException("check arguments");
         }
-        return studyUserRepository.findStudyUserByUserId(userId);
+        userPassword = passwordEncoder.encode(userPassword);
+        return studyUserRepository.findStudyUserByUserIdAndUserPassword(userId, userPassword);
     }
 }
