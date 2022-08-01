@@ -70,7 +70,7 @@ public class JwtTokenProvider {
         return Optional.empty();
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token) throws ExpiredJwtException {
         try {
             Jws<Claims> claims = Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -85,6 +85,8 @@ public class JwtTokenProvider {
             log.error("JWT is unsupported");
         } catch (SignatureException e) {
             log.error("JWT signature is invalid");
+        } catch (ExpiredJwtException e) {
+            log.error("JWT token is expired");
         }
         return false;
     }

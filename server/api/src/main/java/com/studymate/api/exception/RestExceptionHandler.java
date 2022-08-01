@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class RestExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<?> handleException(Exception e) {
-        log.error(e.getMessage(), e);
+        log.error(e.getMessage());
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 }

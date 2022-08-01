@@ -4,6 +4,7 @@ import com.studymate.api.auth.entity.StudyUser;
 import com.studymate.api.auth.repository.StudyUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,6 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
     private final StudyUserRepository studyUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public StudyUser createUser(final StudyUser studyUser) {
         if (studyUser == null || studyUser.getUserId() == null

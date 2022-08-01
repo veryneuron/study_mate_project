@@ -29,8 +29,8 @@ public class AuthController {
             StudyUser registeredUser = authService.createUser(studyUser);
             StudyUserDTO responseUser = modelMapper.map(registeredUser, StudyUserDTO.class);
             return ResponseEntity.ok().body(responseUser);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
             return ResponseEntity.badRequest().body(studyUserDTO);
         }
     }
@@ -47,8 +47,8 @@ public class AuthController {
                 log.info("UserId already exists");
                 return ResponseEntity.badRequest().body(studyUserDTO);
             }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
             return ResponseEntity.badRequest().body(studyUserDTO);
         }
     }
