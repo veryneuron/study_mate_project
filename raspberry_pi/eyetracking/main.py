@@ -5,16 +5,6 @@ from scipy.spatial import distance
 import time
 from multiprocessing import Process
 
-global count_left
-global count_right
-
-# avg_sclera_left[0] : 왼쪽눈 왼쪽 흰자영역
-# avg_sclera_left[1] : 오른쪽눈 왼쪽 흰자영역
-# avg_sclera_right[0] : 왼쪽눈 오른쪽 흰자영역
-# avg_sclera_right[1] : 오른쪽눈 오른쪽 흰자영역
-global avg_sclera_left
-global avg_sclera_right
-
 
 #눈동자 마스킹
 def eye_position(shape, gray, left, right):
@@ -33,12 +23,7 @@ def eye_position(shape, gray, left, right):
 
 
 #흰자영역 평균크기 계산
-def calcul_sclera_avg(thresh, mid, right=False):
-    global avg_sclera_left
-    global avg_sclera_right
-
-    global count_left
-    global count_right
+def calcul_sclera_avg(thresh, mid, count, avg_sclera_left, avg_sclera_right, right=False):
 
     #눈 중앙 기준 흰자 영역 왼쪽 오른쪽 contouring
     cnts_left, _ = cv2.findContours(thresh[:, 0:mid], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -54,33 +39,36 @@ def calcul_sclera_avg(thresh, mid, right=False):
         area_right = cv2.contourArea(cnt_right)
 
         if right:
-            if area_left > 30 and area_right > 30 and count_right < 10:
-                count_right += 1
+            if area_left > 30 and area_right > 30 and count < 10:
+                count += 1
                 avg_sclera_left[1] += int(area_left)
                 avg_sclera_right[1] += int(area_right)
-            elif count_right == 10:
-                avg_sclera_right[1] = avg_sclera_right[1] / count_right
-                avg_sclera_left[1] = avg_sclera_left[1] / count_right
-                count_right += 1
+            elif count == 10:
+                avg_sclera_right[1] = avg_sclera_right[1] / count
+                avg_sclera_left[1] = avg_sclera_left[1] / count
+                count += 1
                 print("avg_right_eye_sclera_area[left]: " + str(avg_sclera_left[1]))
                 print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
                 print("right done")
+
         elif right == False:
-            if area_left > 25 and area_right > 25 and count_left < 10:
-                count_left += 1
+            if area_left > 25 and area_right > 25 and count < 10:
+                count += 1
                 avg_sclera_left[0] += int(area_left)
                 avg_sclera_right[0] += int(area_right)
-            elif count_left == 10:
-                avg_sclera_right[0] = avg_sclera_right[0] / count_left
-                avg_sclera_left[0] = avg_sclera_left[0] / count_left
-                count_left += 1
+            elif count == 10:
+                avg_sclera_right[0] = avg_sclera_right[0] / count
+                avg_sclera_left[0] = avg_sclera_left[0] / count
+                count += 1
                 print("avg_left_eye_sclera_area[left]: " + str(avg_sclera_left[0]))
                 print("avg_left_eye_sclera_area[right]: " + str(avg_sclera_right[0]))
                 print("left done")
 
+        return count, avg_sclera_left, avg_sclera_right
+
 
 #바라보는방향
-def gaze_check(thresh, mid, ratio, right=False):
+def gaze_check(thresh, mid, ratio, avg_sclera_left, avg_sclera_right, right=False):
     # 눈동자 움직임 민감도
     # 0: 좌측 1 : 우측
     # left, right : 흰자영역
@@ -91,13 +79,6 @@ def gaze_check(thresh, mid, ratio, right=False):
 
     area_left = 0
     area_right = 0
-
-    #흰자 평균값
-    global avg_sclera_left
-    global avg_sclera_right
-
-    global count_left
-    global count_right
 
     #눈 중앙 기준 흰자 영역 왼쪽 오른쪽 contouring
     cnts_left, _ = cv2.findContours(thresh[:, 0:mid], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -151,6 +132,7 @@ def calcul_ratio(face, base_length):
 
     return ratio
 
+
 #눈 감음 인식 (EAR 알고리즘)
 def eye_aspect_ratio(eye):
     A = distance.euclidean(eye[1], eye[5])
@@ -161,12 +143,10 @@ def eye_aspect_ratio(eye):
 
     return ear
 
-def main():
-    global count_left
-    global count_right
 
-    global avg_sclera_left
-    global avg_sclera_right
+def main():
+    count_left = 0
+    count_right = 0
 
     #눈감음 민감도
     eye_ar_thresh = 0.25
@@ -186,6 +166,10 @@ def main():
     count_left = 0
     count_right = 0
 
+    # avg_sclera_left[0] : 왼쪽눈 왼쪽 흰자영역
+    # avg_sclera_left[1] : 오른쪽눈 왼쪽 흰자영역
+    # avg_sclera_right[0] : 왼쪽눈 오른쪽 흰자영역
+    # avg_sclera_right[1] : 오른쪽눈 오른쪽 흰자영역
     # sclera 평균 넓이 좌, 우
     avg_sclera_left = [0, 0]
     avg_sclera_right = [0, 0]
@@ -240,8 +224,8 @@ def main():
 
             if count_left <= 10 or count_right <= 10:
 
-                calcul_sclera_avg(_thresh[:, 0:mid], mid_left)
-                calcul_sclera_avg(_thresh[:, mid:], (mid_right - mid), True)
+                count_left, avg_sclera_left, avg_sclera_right = calcul_sclera_avg(_thresh[:, 0:mid], mid_left, count_left, avg_sclera_left, avg_sclera_right)
+                count_right, avg_sclera_left, avg_sclera_right = calcul_sclera_avg(_thresh[:, mid:], (mid_right - mid), count_right, avg_sclera_left, avg_sclera_right, True)
 
                 base_length = shape.part(16).x - shape.part(0).x
 
@@ -251,8 +235,8 @@ def main():
                 rate_of_change = calcul_ratio(head, base_length)
 
                 #병렬로
-                gaze_left = gaze_check(_thresh[:, 0:mid], mid_left, rate_of_change)
-                gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid), rate_of_change, True)
+                gaze_left = gaze_check(_thresh[:, 0:mid], mid_left, rate_of_change, avg_sclera_left, avg_sclera_right)
+                gaze_right = gaze_check(_thresh[:, mid:], (mid_right - mid), rate_of_change, avg_sclera_left, avg_sclera_right, True)
 
                 #병렬로
                 ear_left = eye_aspect_ratio(left)
