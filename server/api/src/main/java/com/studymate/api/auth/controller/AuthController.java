@@ -22,20 +22,19 @@ public class AuthController {
     private JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @PostMapping("/signup")
+    @PostMapping
     public ResponseEntity<?> signup(@Valid @RequestBody StudyUserDTO studyUserDTO) {
         try {
             StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
-            StudyUser registeredUser = authService.createUser(studyUser);
-            StudyUserDTO responseUser = modelMapper.map(registeredUser, StudyUserDTO.class);
-            return ResponseEntity.ok().body(responseUser);
+            authService.createUser(studyUser);
+            return ResponseEntity.ok("Successfully signed up");
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());
             return ResponseEntity.badRequest().body(studyUserDTO);
         }
     }
 
-    @GetMapping("/signin")
+    @GetMapping
     public ResponseEntity<?> signing(@Valid @RequestBody StudyUserDTO studyUserDTO) {
         try {
             StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
@@ -50,6 +49,30 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());
             return ResponseEntity.badRequest().body(studyUserDTO);
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<?> editing(@Valid @RequestBody StudyUserDTO studyUserDTO) {
+        try {
+            StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
+            authService.editUser(studyUser);
+            return ResponseEntity.ok("Successfully edited");
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to edit - Illegal Argument");
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleting(@Valid @RequestBody StudyUserDTO studyUserDTO) {
+        try {
+            StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
+            authService.deleteUser(studyUser.getUserId());
+            return ResponseEntity.ok("Successfully deleted");
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to delete - Illegal Argument");
         }
     }
 
