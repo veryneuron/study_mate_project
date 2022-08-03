@@ -9,5 +9,4 @@ import java.util.Optional;
 @Repository
 public interface StudyUserRepository extends JpaRepository<StudyUser, Integer> {
     Optional<StudyUser> findStudyUserByUserId(String userId);
-    Optional<StudyUser> findStudyUserByUserIdAndUserPassword(String userId, String userPassword);
 }
