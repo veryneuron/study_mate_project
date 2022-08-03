@@ -7,7 +7,7 @@ from multiprocessing import Process
 
 
 #눈동자 마스킹
-def eye_position(shape, gray, left, right):
+def eye_position(gray, left, right):
     #threshold 값
     thresh_value = 75
 
@@ -75,7 +75,6 @@ def gaze_check(thresh, mid, ratio, avg_sclera_left, avg_sclera_right, right=Fals
     sensitivity_left = np.array([50, 40])
     sensitivity_right = np.array([50, 40])
 
-    ratio = 1 + ratio
 
     area_left = 0
     area_right = 0
@@ -96,27 +95,28 @@ def gaze_check(thresh, mid, ratio, avg_sclera_left, avg_sclera_right, right=Fals
         area_left = cv2.contourArea(cnt_left)
         area_right = cv2.contourArea(cnt_right)
 
-        # avg_sclera_left[0] : 왼쪽눈 왼쪽 흰자영역
-        # avg_sclera_left[1] : 오른쪽눈 왼쪽 흰자영역
-        # avg_sclera_right[0] : 왼쪽눈 오른쪽 흰자영역
-        # avg_sclera_right[1] : 오른쪽눈 오른쪽 흰자영역
-        eye_L_sclera_L_change = int(area_left - int(avg_sclera_left[0] * ratio))
-        eye_L_sclera_L_base = ((avg_sclera_left[0] - sensitivity_left[0]) * ratio)
-
-        eye_L_sclera_R_change = int(area_right - int(avg_sclera_right[0] * ratio))
-        eye_L_sclera_R_base = ((avg_sclera_right[0] - sensitivity_right[0]) * ratio)
-
-        eye_R_sclera_L_change = int(area_left - int(avg_sclera_left[1] * ratio))
-        eye_R_sclera_L_base = ((avg_sclera_left[1] - sensitivity_left[1]) * ratio)
-
-        eye_R_sclera_R_change = int(area_right - int(avg_sclera_right[1] * ratio))
-        eye_R_sclera_R_base = ((avg_sclera_right[1] - sensitivity_right[1]) * ratio)
 
         #왼쪽 오른쪽 움직임 avg에 따라 sensitivity 조절하는 방법으로 수정하기
         if right:
+            # avg_sclera_left[1] : 오른쪽눈 왼쪽 흰자영역
+            # avg_sclera_right[1] : 오른쪽눈 오른쪽 흰자영역
+            eye_R_sclera_L_change = int(area_left - int(avg_sclera_left[1] * ratio))
+            eye_R_sclera_L_base = ((avg_sclera_left[1] - sensitivity_left[1]) * ratio)
+
+            eye_R_sclera_R_change = int(area_right - int(avg_sclera_right[1] * ratio))
+            eye_R_sclera_R_base = ((avg_sclera_right[1] - sensitivity_right[1]) * ratio)
+
             if eye_R_sclera_L_change > eye_R_sclera_L_base or eye_R_sclera_R_change > eye_R_sclera_R_base:
                 return 1
         elif right==False:
+            # avg_sclera_left[0] : 왼쪽눈 왼쪽 흰자영역
+            # avg_sclera_right[0] : 왼쪽눈 오른쪽 흰자영역
+            eye_L_sclera_L_change = int(area_left - int(avg_sclera_left[0] * ratio))
+            eye_L_sclera_L_base = ((avg_sclera_left[0] - sensitivity_left[0]) * ratio)
+
+            eye_L_sclera_R_change = int(area_right - int(avg_sclera_right[0] * ratio))
+            eye_L_sclera_R_base = ((avg_sclera_right[0] - sensitivity_right[0]) * ratio)
+
             if eye_L_sclera_L_change > eye_L_sclera_L_base or eye_L_sclera_R_change > eye_L_sclera_R_base:
                 return 1
 
@@ -129,6 +129,8 @@ def calcul_ratio(face, base_length):
 
     ratio = (face_length - base_length) / base_length
     ratio = round(ratio, 2)
+
+    ratio = 1 + ratio
 
     return ratio
 
@@ -215,7 +217,7 @@ def main():
                             [shape.part(30).x, shape.part(30).y]], np.int32)
 
             # 얼굴 범위 출력
-            _thresh = eye_position(shape, gray, left, right)
+            _thresh = eye_position(gray, left, right)
 
             mid = (shape.part(42).x + shape.part(39).x) // 2
 
