@@ -59,9 +59,9 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 avg_sclera_left[1] += int(area_left)
                 avg_sclera_right[1] += int(area_right)
             elif count_right == 10:
-                count_right += 1
                 avg_sclera_right[1] = avg_sclera_right[1] / count_right
                 avg_sclera_left[1] = avg_sclera_left[1] / count_right
+                count_right += 1
                 print("avg_right_eye_sclera_area[left]: " + str(avg_sclera_left[1]))
                 print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
                 print("right done")
@@ -71,9 +71,9 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 avg_sclera_left[0] += int(area_left)
                 avg_sclera_right[0] += int(area_right)
             elif count_left == 10:
-                count_left += 1
                 avg_sclera_right[0] = avg_sclera_right[0] / count_left
                 avg_sclera_left[0] = avg_sclera_left[0] / count_left
+                count_left += 1
                 print("avg_left_eye_sclera_area[left]: " + str(avg_sclera_left[0]))
                 print("avg_left_eye_sclera_area[right]: " + str(avg_sclera_right[0]))
                 print("left done")
@@ -84,10 +84,8 @@ def gaze_check(thresh, mid, ratio, right=False):
     # 눈동자 움직임 민감도
     # 0: 좌측 1 : 우측
     # left, right : 흰자영역
-    sensitivity_left = np.array([40, 30])
-    sensitivity_right = np.array([40, 30])
-    #눈감음 민감도
-    sensitivity_closed = 12
+    sensitivity_left = np.array([50, 40])
+    sensitivity_right = np.array([50, 40])
 
     ratio = 1 + ratio
 
@@ -170,6 +168,7 @@ def main():
     global avg_sclera_left
     global avg_sclera_right
 
+    #눈감음 민감도
     eye_ar_thresh = 0.25
 
     face_count = 0
@@ -183,24 +182,24 @@ def main():
     arr_temp = []
     count = 0
 
-    cap = cv2.VideoCapture(0)
-    cap.set(3, 320)
-    cap.set(4, 240)
-    detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor("shape_68.dat")
-
     # sclera 평균 연산 카운트용
     count_left = 0
     count_right = 0
 
     # sclera 평균 넓이 좌, 우
-    avg_sclera_left = np.array([0, 0])
-    avg_sclera_right = np.array([0, 0])
+    avg_sclera_left = [0, 0]
+    avg_sclera_right = [0, 0]
 
     # 얼굴 크기 변화율
     rate_of_change = 0
     # 기준 얼굴 크기
     base_length = 0
+
+    cap = cv2.VideoCapture(0)
+    cap.set(3, 320)
+    cap.set(4, 240)
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor("shape_68.dat")
 
     while True:
         _, frame = cap.read()
@@ -239,22 +238,15 @@ def main():
             mid_left = (shape.part(36).x + shape.part(39).x) // 2
             mid_right = (shape.part(42).x + shape.part(45).x) // 2
 
-            if count_left < 11 or count_right < 11:
-                #병렬로
+            if count_left <= 10 or count_right <= 10:
 
-                #p1 = Process(target=calcul_sclera_avg, args=(_thresh[:, 0:mid], mid_left))
                 calcul_sclera_avg(_thresh[:, 0:mid], mid_left)
                 calcul_sclera_avg(_thresh[:, mid:], (mid_right - mid), True)
-                #p1.start()
-                #p2.start()
-                #p1.join()
-                #p2.join()
 
                 base_length = shape.part(16).x - shape.part(0).x
 
-
             # 평균 흰자영역 계산 후 연산
-            if count_left >= 10 and count_right >= 10:
+            if count_left > 10 and count_right > 10:
                 cv2.imshow("thresh", _thresh)
                 rate_of_change = calcul_ratio(head, base_length)
 
