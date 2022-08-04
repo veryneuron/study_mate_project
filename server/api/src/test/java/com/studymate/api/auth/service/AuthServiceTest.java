@@ -3,7 +3,6 @@ package com.studymate.api.auth.service;
 import com.studymate.api.auth.entity.StudyUser;
 import com.studymate.api.auth.jwt.JwtTokenProvider;
 import com.studymate.api.auth.repository.StudyUserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ class AuthServiceTest {
     StudyUserRepository studyUserRepository;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     StudyUser studyUser;
-    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider("secretkeyfortestpurpose1234567890");
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider();
 
     @BeforeEach
     void setUp() {
@@ -36,6 +35,7 @@ class AuthServiceTest {
         studyUser.setUserPassword(password);
 
         authService = new AuthService(studyUserRepository, jwtTokenProvider, passwordEncoder);
+        jwtTokenProvider.setSecretKey("secretkeyfortestpurpose1234567890");
         jwtTokenProvider.init();
         assertNotNull(studyUserRepository);
     }
@@ -85,8 +85,8 @@ class AuthServiceTest {
     void testAuthenticate() {
         when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
         String token = authService.authenticate("test", "testpassword");
-        Assertions.assertTrue(jwtTokenProvider.validateToken(token));
-        Assertions.assertEquals(jwtTokenProvider.getAuthentication(token).getPrincipal(), studyUser.getUserId());
+        assertTrue(jwtTokenProvider.validateToken(token));
+        assertEquals(jwtTokenProvider.getAuthentication(token).getPrincipal(), studyUser.getUserId());
     }
 
     @Test
@@ -185,7 +185,7 @@ class AuthServiceTest {
     @DisplayName("test getUser normal case")
     void testNormalGetUser() {
         when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
-        StudyUser user = authService.getUser("test");
+        StudyUser user = authService.findUser("test");
         assertAll("editedUser",
                 () -> assertEquals(studyUser.getUserId(), user.getUserId()),
                 () -> assertEquals(studyUser.getNickname(), user.getNickname()),
@@ -194,10 +194,10 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("test editUser not existing case")
+    @DisplayName("test getUser not existing case")
     void testNotExistingGetUser() {
         when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.getUser("test1"));
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.findUser("test1"));
         assertEquals("UserId does not exist", error.getMessage());
     }
 

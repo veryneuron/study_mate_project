@@ -1,11 +1,9 @@
 package com.studymate.api.auth.jwt;
 
 import io.jsonwebtoken.*;
-
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,15 +21,18 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtTokenProvider {
     @Value("${secret-key}")
-    private final String secretKey;
+    private String secretKey;
     private Key key;
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
     @PostConstruct
     public void init() {
-        String encodedSecretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-        byte[] secretKeyBytes = Decoders.BASE64.decode(encodedSecretKey);
+        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        byte[] secretKeyBytes = Decoders.BASE64.decode(secretKey);
         key = Keys.hmacShaKeyFor(secretKeyBytes);
     }
 

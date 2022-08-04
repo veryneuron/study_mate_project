@@ -50,7 +50,7 @@ public class AuthService {
         }
     }
 
-    public StudyUser getUser(final String userId) {
+    public StudyUser findUser(final String userId) {
         Optional<StudyUser> userResult = studyUserRepository.findStudyUserByUserId(userId);
         if (userResult.isPresent()) {
             return userResult.get();
