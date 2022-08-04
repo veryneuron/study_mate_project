@@ -1,6 +1,7 @@
 package com.studymate.api.auth.service;
 
 import com.studymate.api.auth.entity.StudyUser;
+import com.studymate.api.auth.jwt.JwtTokenProvider;
 import com.studymate.api.auth.repository.StudyUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
     private final StudyUserRepository studyUserRepository;
+    private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
     public StudyUser createUser(final StudyUser studyUser) {
@@ -30,7 +32,7 @@ public class AuthService {
         return studyUserRepository.save(studyUser);
     }
 
-    public Optional<StudyUser> authenticate(final String userId, String userPassword) {
+    public String authenticate(final String userId, String userPassword) {
         if (userId == null) {
             log.warn("Illegal argument");
             throw new IllegalArgumentException("Please check arguments");
@@ -41,7 +43,7 @@ public class AuthService {
             throw new IllegalArgumentException("UserId does not exist");
         }
         if (passwordEncoder.matches(userPassword, studyUser.get().getUserPassword())) {
-            return studyUser;
+            return jwtTokenProvider.createToken(studyUser.get().getUserId());
         } else {
             log.info("Wrong password");
             throw new IllegalArgumentException("Wrong password");

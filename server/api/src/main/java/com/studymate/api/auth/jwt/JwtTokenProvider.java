@@ -26,12 +26,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     @Value("${secret-key}")
-    private String secretKey;
+    private final String secretKey;
     private Key key;
     @PostConstruct
-    protected void init() {
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-        byte[] secretKeyBytes = Decoders.BASE64.decode(secretKey);
+    public void init() {
+        String encodedSecretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        byte[] secretKeyBytes = Decoders.BASE64.decode(encodedSecretKey);
         key = Keys.hmacShaKeyFor(secretKeyBytes);
     }
 

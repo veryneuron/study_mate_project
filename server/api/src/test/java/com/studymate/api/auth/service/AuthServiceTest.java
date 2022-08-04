@@ -1,6 +1,7 @@
 package com.studymate.api.auth.service;
 
 import com.studymate.api.auth.entity.StudyUser;
+import com.studymate.api.auth.jwt.JwtTokenProvider;
 import com.studymate.api.auth.repository.StudyUserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ class AuthServiceTest {
     StudyUserRepository studyUserRepository;
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     StudyUser studyUser;
+    JwtTokenProvider jwtTokenProvider = new JwtTokenProvider("secretkeyfortestpurpose1234567890");
 
     @BeforeEach
     void setUp() {
@@ -33,7 +35,8 @@ class AuthServiceTest {
         String password = passwordEncoder.encode("testpassword");
         studyUser.setUserPassword(password);
 
-        authService = new AuthService(studyUserRepository, passwordEncoder);
+        authService = new AuthService(studyUserRepository, jwtTokenProvider, passwordEncoder);
+        jwtTokenProvider.init();
         assertNotNull(studyUserRepository);
     }
 
@@ -81,7 +84,9 @@ class AuthServiceTest {
     @DisplayName("test authenticate normal case")
     void testAuthenticate() {
         when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
-        Assertions.assertEquals(Optional.of(studyUser), authService.authenticate("test", "testpassword"));
+        String token = authService.authenticate("test", "testpassword");
+        Assertions.assertTrue(jwtTokenProvider.validateToken(token));
+        Assertions.assertEquals(jwtTokenProvider.getAuthentication(token).getPrincipal(), studyUser.getUserId());
     }
 
     @Test
