@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -40,6 +41,21 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());
             return ResponseEntity.badRequest().body(studyUserDTO);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getUserData(@AuthenticationPrincipal String userId) {
+        try {
+            if (userId == null) {
+                throw new IllegalArgumentException("Illegal argument");
+            }
+            StudyUser studyUser = authService.getUser(userId);
+            StudyUserDTO studyUserDTO = modelMapper.map(studyUser, StudyUserDTO.class);
+            return ResponseEntity.ok().body(studyUserDTO);
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to get data - Illegal Argument");
         }
     }
 

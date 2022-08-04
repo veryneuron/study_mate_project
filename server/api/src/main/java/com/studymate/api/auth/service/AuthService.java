@@ -50,6 +50,16 @@ public class AuthService {
         }
     }
 
+    public StudyUser getUser(final String userId) {
+        Optional<StudyUser> userResult = studyUserRepository.findStudyUserByUserId(userId);
+        if (userResult.isPresent()) {
+            return userResult.get();
+        } else {
+            log.info("UserId does not exist");
+            throw new IllegalArgumentException("UserId does not exist");
+        }
+    }
+
     public StudyUser editUser(final StudyUser studyUser) {
         if (studyUser == null || studyUser.getUserId() == null) {
             log.warn("Illegal argument");
