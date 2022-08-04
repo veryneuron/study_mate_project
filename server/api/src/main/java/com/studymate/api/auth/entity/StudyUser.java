@@ -26,7 +26,7 @@ public class StudyUser {
     private String nickname;
     @NotNull
     @Column(name = "user_password")
-    @Length(min = 4, max = 20)
+    @Length(max = 60)
     private String userPassword;
 
     @Override

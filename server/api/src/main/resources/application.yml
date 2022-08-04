@@ -12,8 +12,14 @@ spring:
     hibernate:
       ddl-auto: validate
     database: postgresql
+    open-in-view: false
 server:
   port: 8000
+  error:
+    include-message: always
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
 logging:
   level:
     org.hibernate.SQL: DEBUG

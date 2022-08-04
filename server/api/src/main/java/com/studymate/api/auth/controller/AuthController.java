@@ -20,7 +20,7 @@ public class AuthController {
     private AuthService authService;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<?> signup(@Valid @RequestBody StudyUserDTO studyUserDTO) {
         try {
             StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
@@ -32,7 +32,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/signin")
     public ResponseEntity<?> signing(@Valid @RequestBody StudyUserDTO studyUserDTO) {
         try {
             StudyUser studyUser = modelMapper.map(studyUserDTO, StudyUser.class);
@@ -50,7 +50,7 @@ public class AuthController {
             if (userId == null) {
                 throw new IllegalArgumentException("Illegal argument");
             }
-            StudyUser studyUser = authService.getUser(userId);
+            StudyUser studyUser = authService.findUser(userId);
             StudyUserDTO studyUserDTO = modelMapper.map(studyUser, StudyUserDTO.class);
             return ResponseEntity.ok().body(studyUserDTO);
         } catch (IllegalArgumentException e) {
