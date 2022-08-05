@@ -1,4 +1,4 @@
-package com.studymate.api.auth.entity;
+package com.studymate.api.user.entity;
 
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -28,6 +28,13 @@ public class StudyUser {
     @Column(name = "user_password")
     @Length(max = 60)
     private String userPassword;
+    @Column(name = "temperature_setting")
+    private Float temperatureSetting;
+    @Column(name = "humidity_setting")
+    private Float humiditySetting;
+    @Column(name = "rasberrypi_address")
+    @Length(max = 45)
+    private String rasberrypiAddress;
 
     @Override
     public boolean equals(Object o) {
