@@ -1,10 +1,10 @@
-package com.studymate.api.auth.controller;
+package com.studymate.api.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studymate.api.auth.dto.StudyUserDTO;
-import com.studymate.api.auth.entity.StudyUser;
-import com.studymate.api.auth.jwt.JwtTokenProvider;
-import com.studymate.api.auth.service.AuthService;
+import com.studymate.api.user.dto.AuthDTO;
+import com.studymate.api.user.entity.StudyUser;
+import com.studymate.api.user.jwt.JwtTokenProvider;
+import com.studymate.api.user.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test without valid accessToken")
     void withoutTokenTest() throws Exception {
-        StudyUserDTO user = new StudyUserDTO();
+        AuthDTO user = new AuthDTO();
         user.setUserId("test");
         user.setNickname("updatednick");
         user.setUserPassword("updatedpw");
@@ -68,7 +68,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test DTO validation")
     void DtoValidationTest() throws Exception {
-        StudyUserDTO user = new StudyUserDTO();
+        AuthDTO user = new AuthDTO();
         user.setUserId("012345678901234567890123456789");
         user.setNickname("012345678901234567890123456789");
         user.setUserPassword("012345678901234567890123456789");
@@ -86,7 +86,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test signup normal case")
     void signupTest() throws Exception {
-        StudyUserDTO user = new StudyUserDTO();
+        AuthDTO user = new AuthDTO();
         user.setUserId("newtest");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
@@ -101,7 +101,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test signup error case")
     void signupErrorTest() throws Exception {
-        StudyUserDTO user = new StudyUserDTO();
+        AuthDTO user = new AuthDTO();
         user.setUserId("test");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
@@ -114,7 +114,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test signin normal case")
     void signinTest() throws Exception {
-        StudyUserDTO user = modelMapper.map(studyUser, StudyUserDTO.class);
+        AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
         user.setUserPassword("testpassword");
         MvcResult result = mockMvc.perform(get("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +129,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test signin error case")
     void signinErrorTest() throws Exception {
-        StudyUserDTO user = new StudyUserDTO();
+        AuthDTO user = new AuthDTO();
         user.setUserId("test1");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
@@ -165,7 +165,7 @@ class AuthControllerTest {
     void editTest() throws Exception {
         studyUser.setNickname("updatednick");
         studyUser.setUserPassword("updatedpw");
-        StudyUserDTO user = modelMapper.map(studyUser, StudyUserDTO.class);
+        AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
         mockMvc.perform(put("/api/auth")
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -182,7 +182,7 @@ class AuthControllerTest {
         newUser.setUserId("anothertest");
         newUser.setNickname("anothernick");
         newUser.setUserPassword("anotherpw");
-        StudyUserDTO user = modelMapper.map(newUser, StudyUserDTO.class);
+        AuthDTO user = modelMapper.map(newUser, AuthDTO.class);
         mockMvc.perform(put("/api/auth")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -194,7 +194,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test deleting normal case")
     void deletingTest() throws Exception {
-        StudyUserDTO user = modelMapper.map(studyUser, StudyUserDTO.class);
+        AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
         user.setUserPassword("testpassword");
         mockMvc.perform(delete("/api/auth")
                         .header("Authorization", "Bearer " + accessToken)
@@ -209,7 +209,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test deleting error case")
     void deletingErrorTest() throws Exception {
-        StudyUserDTO user = new StudyUserDTO();
+        AuthDTO user = new AuthDTO();
         user.setNickname("testnick");
         user.setUserPassword("testpassword");
         mockMvc.perform(delete("/api/auth")

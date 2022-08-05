@@ -1,4 +1,4 @@
-package com.studymate.api.auth.jwt;
+package com.studymate.api.user.jwt;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
-package com.studymate.api.auth.repository;
+package com.studymate.api.user.repository;
 
-import com.studymate.api.auth.entity.StudyUser;
+import com.studymate.api.user.entity.StudyUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

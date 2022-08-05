@@ -1,6 +1,6 @@
-package com.studymate.api.auth.config;
+package com.studymate.api.user.config;
 
-import com.studymate.api.auth.jwt.JwtTokenFilter;
+import com.studymate.api.user.jwt.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

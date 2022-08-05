@@ -1,4 +1,4 @@
-package com.studymate.api.auth.jwt;
+package com.studymate.api.user.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

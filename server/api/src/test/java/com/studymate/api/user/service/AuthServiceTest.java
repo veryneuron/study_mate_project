@@ -1,8 +1,8 @@
-package com.studymate.api.auth.service;
+package com.studymate.api.user.service;
 
-import com.studymate.api.auth.entity.StudyUser;
-import com.studymate.api.auth.jwt.JwtTokenProvider;
-import com.studymate.api.auth.repository.StudyUserRepository;
+import com.studymate.api.user.entity.StudyUser;
+import com.studymate.api.user.jwt.JwtTokenProvider;
+import com.studymate.api.user.repository.StudyUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
