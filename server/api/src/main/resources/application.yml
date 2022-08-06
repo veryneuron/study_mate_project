@@ -18,6 +18,9 @@ spring:
     port: 5672
     username: ${POSTGRES_ID}
     password: ${POSTGRES_PW}
+    listener:
+      simple:
+        auto-startup: false
 server:
   port: 8000
   error:
