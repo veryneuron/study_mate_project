@@ -179,14 +179,14 @@ class AuthServiceTest {
         assertEquals("Please check arguments", error.getMessage());
     }
 
-    //getUser
+    //findUser
 
     @Test
-    @DisplayName("test getUser normal case")
-    void testNormalGetUser() {
+    @DisplayName("test findUser normal case")
+    void testNormalFindUser() {
         when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
         StudyUser user = authService.findUser("test");
-        assertAll("editedUser",
+        assertAll("findUser",
                 () -> assertEquals(studyUser.getUserId(), user.getUserId()),
                 () -> assertEquals(studyUser.getNickname(), user.getNickname()),
                 () -> assertTrue(passwordEncoder.matches("testpassword", user.getUserPassword()))
@@ -194,8 +194,8 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("test getUser not existing case")
-    void testNotExistingGetUser() {
+    @DisplayName("test findUser not existing case")
+    void testNotExistingFindUser() {
         when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.findUser("test1"));
         assertEquals("UserId does not exist", error.getMessage());
