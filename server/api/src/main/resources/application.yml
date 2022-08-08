@@ -20,7 +20,15 @@ spring:
     password: ${POSTGRES_PW}
     listener:
       simple:
-        auto-startup: false
+        auto-startup: true
+  data:
+    mongodb:
+      authentication-database: admin
+      username: ${POSTGRES_ID}
+      password: ${POSTGRES_PW}
+      database: study_mate
+      host: localhost
+      port: 27017
 server:
   port: 8000
   error:
