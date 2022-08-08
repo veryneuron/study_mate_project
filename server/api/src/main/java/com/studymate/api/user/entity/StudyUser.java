@@ -7,8 +7,11 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity(name = "study_user")
 @Getter
@@ -53,5 +56,25 @@ public class StudyUser {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public Optional<StudyTime> getLatestStudyTime() {
+        return studyTimes.stream().max(Comparator.comparing(StudyTime::getStartTimestamp));
+    }
+
+    public Duration getTotalStudyTime() {
+        return studyTimes
+                .stream()
+                .map(StudyTime::getTotalTime)
+                .reduce(Duration.ZERO,
+                        (totalDuration, duration) -> duration != null ? totalDuration.plus(duration) : totalDuration);
+    }
+
+    public Duration getTotalFocusTime() {
+        return studyTimes
+                .stream()
+                .map(StudyTime::getFocusTime)
+                .reduce(Duration.ZERO,
+                        (totalDuration, duration) -> duration != null ? totalDuration.plus(duration) : totalDuration);
     }
 }

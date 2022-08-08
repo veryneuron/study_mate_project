@@ -2,9 +2,12 @@ package com.studymate.api.study.entity;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.lang.Nullable;
+
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -25,13 +28,19 @@ public class StudyTime {
     @NotNull
     @Column(name = "start_timestamp")
     private LocalDateTime startTimestamp;
-    @NotNull
+    @Nullable
     @Column(name = "end_timestamp")
     private LocalDateTime endTimestamp;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "study_time_sn")
     @ToString.Exclude
     private List<StudyRecord> studyRecords;
+    @Nullable
+    @Column(name = "total_time")
+    private Duration totalTime;
+    @Nullable
+    @Column(name = "focus_time")
+    private Duration focusTime;
 
     @Override
     public boolean equals(Object o) {
@@ -44,5 +53,25 @@ public class StudyTime {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public Duration getCalculatedFocusTime() {
+        if (focusTime == null) {
+            return Duration.between(startTimestamp, LocalDateTime.now());
+        } else {
+            if (studyRecords.get(studyRecords.size() - 1).getRecordTime() == null) {
+                return focusTime.plus(studyRecords.get(studyRecords.size() - 1).getCalculatedRecordTime());
+            } else {
+                return focusTime;
+            }
+        }
+    }
+
+    public Duration getCalculatedNonFocusTime() {
+        if (totalTime == null) {
+            return Duration.between(startTimestamp, LocalDateTime.now());
+        } else {
+            return totalTime;
+        }
     }
 }

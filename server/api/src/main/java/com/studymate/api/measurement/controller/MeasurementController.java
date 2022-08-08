@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/measurement")
 @RequiredArgsConstructor
-public class measurementController {
+public class MeasurementController {
     private final MeasurementDataRepository measurementDataRepository;
     private final StudyUserRepository studyUserRepository;
 

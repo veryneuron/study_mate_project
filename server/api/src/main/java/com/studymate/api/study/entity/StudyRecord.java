@@ -2,9 +2,11 @@ package com.studymate.api.study.entity;
 
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -24,9 +26,12 @@ public class StudyRecord {
     @NotNull
     @Column(name = "start_timestamp")
     private LocalDateTime startTimestamp;
-    @NotNull
+    @Nullable
     @Column(name = "end_timestamp")
     private LocalDateTime endTimestamp;
+    @Nullable
+    @Column(name = "record_time")
+    private Duration recordTime;
 
     @Override
     public boolean equals(Object o) {
@@ -39,5 +44,13 @@ public class StudyRecord {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public Duration getCalculatedRecordTime() {
+        if (recordTime == null || endTimestamp == null) {
+            return Duration.between(startTimestamp, LocalDateTime.now());
+        } else {
+            return recordTime;
+        }
     }
 }
