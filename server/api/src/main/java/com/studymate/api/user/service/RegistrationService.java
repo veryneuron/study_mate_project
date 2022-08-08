@@ -24,7 +24,7 @@ public class RegistrationService {
     private final MqttPublisher mqttPublisher;
 
     public StudyUser findUser(final String userId) {
-        Optional<StudyUser> userResult = studyUserRepository.findStudyUserByUserId(userId);
+        Optional<StudyUser> userResult = studyUserRepository.findByUserId(userId);
         if (userResult.isPresent()) {
             return userResult.get();
         } else {
@@ -34,7 +34,7 @@ public class RegistrationService {
     }
 
     public StudyUser setValue(final StudyUser studyUser) throws JsonProcessingException {
-        Optional<StudyUser> oldUserValue = studyUserRepository.findStudyUserByUserId(studyUser.getUserId());
+        Optional<StudyUser> oldUserValue = studyUserRepository.findByUserId(studyUser.getUserId());
         if (oldUserValue.isPresent()) {
             if (studyUser.getTemperatureSetting() != null) {
                 oldUserValue.get().setTemperatureSetting(studyUser.getTemperatureSetting());

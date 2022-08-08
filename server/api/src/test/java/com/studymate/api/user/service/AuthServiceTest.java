@@ -49,7 +49,7 @@ class AuthServiceTest {
         newUser.setUserId("test1");
         newUser.setNickname("testnick1");
         newUser.setUserPassword("testpassword1");
-        when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
+        when(studyUserRepository.findByUserId("test1")).thenReturn(Optional.empty());
         when(studyUserRepository.save(newUser)).thenReturn(newUser);
         StudyUser createdUser = authService.createUser(newUser);
         verify(studyUserRepository, times(1)).save(newUser);
@@ -63,7 +63,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test createUser existing case")
     void testExistingCreateUser() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.createUser(studyUser));
         assertEquals("UserId already exists", error.getMessage());
     }
@@ -83,7 +83,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test authenticate normal case")
     void testAuthenticate() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         String token = authService.authenticate("test", "testpassword");
         assertTrue(jwtTokenProvider.validateToken(token));
         assertEquals(jwtTokenProvider.getAuthentication(token).getPrincipal(), studyUser.getUserId());
@@ -106,7 +106,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test authenticate wrong password case")
     void testAuthenticateWrongPassword() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.authenticate("test", "wrongpassword"));
         assertEquals("Wrong password", error.getMessage());
     }
@@ -116,7 +116,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test editUser normal case")
     void testNormalEditUser() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         when(studyUserRepository.save(any())).then(i -> i.getArgument(0, StudyUser.class));
         StudyUser editUser = new StudyUser();
         editUser.setUserId("test");
@@ -134,7 +134,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test editUser not existing case")
     void testNotExistingEditUser() {
-        when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
+        when(studyUserRepository.findByUserId("test1")).thenReturn(Optional.empty());
         StudyUser studyUser = new StudyUser();
         studyUser.setUserId("test1");
         studyUser.setNickname("testnickname");
@@ -158,7 +158,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test deleteUser normal case")
     void testNormalDeleteUser() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         doNothing().when(studyUserRepository).delete(studyUser);
         authService.deleteUser(studyUser.getUserId());
         verify(studyUserRepository, times(1)).delete(studyUser);
@@ -167,7 +167,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test deleteUser not existing case")
     void testNotExistingDeleteUser() {
-        when(studyUserRepository.findStudyUserByUserId("notexisting")).thenReturn(Optional.empty());
+        when(studyUserRepository.findByUserId("notexisting")).thenReturn(Optional.empty());
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.deleteUser("notexisting"));
         assertEquals("UserId does not exist", error.getMessage());
     }
@@ -184,7 +184,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test findUser normal case")
     void testNormalFindUser() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         StudyUser user = authService.findUser("test");
         assertAll("findUser",
                 () -> assertEquals(studyUser.getUserId(), user.getUserId()),
@@ -196,7 +196,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("test findUser not existing case")
     void testNotExistingFindUser() {
-        when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
+        when(studyUserRepository.findByUserId("test1")).thenReturn(Optional.empty());
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.findUser("test1"));
         assertEquals("UserId does not exist", error.getMessage());
     }

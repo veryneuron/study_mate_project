@@ -24,7 +24,7 @@ public class AuthService {
             log.warn("Illegal argument");
             throw new IllegalArgumentException("Please check arguments");
         }
-        if (studyUserRepository.findStudyUserByUserId(studyUser.getUserId()).isPresent()) {
+        if (studyUserRepository.findByUserId(studyUser.getUserId()).isPresent()) {
             log.info("UserId already exists");
             throw new IllegalArgumentException("UserId already exists");
         }
@@ -37,7 +37,7 @@ public class AuthService {
             log.warn("Illegal argument");
             throw new IllegalArgumentException("Please check arguments");
         }
-        Optional<StudyUser> studyUser = studyUserRepository.findStudyUserByUserId(userId);
+        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
         if (studyUser.isEmpty()) {
             log.info("UserId does not exist");
             throw new IllegalArgumentException("UserId does not exist");
@@ -51,7 +51,7 @@ public class AuthService {
     }
 
     public StudyUser findUser(final String userId) {
-        Optional<StudyUser> userResult = studyUserRepository.findStudyUserByUserId(userId);
+        Optional<StudyUser> userResult = studyUserRepository.findByUserId(userId);
         if (userResult.isPresent()) {
             return userResult.get();
         } else {
@@ -65,7 +65,7 @@ public class AuthService {
             log.warn("Illegal argument");
             throw new IllegalArgumentException("Please check arguments");
         }
-        Optional<StudyUser> editedUser = studyUserRepository.findStudyUserByUserId(studyUser.getUserId());
+        Optional<StudyUser> editedUser = studyUserRepository.findByUserId(studyUser.getUserId());
         if (editedUser.isPresent()) {
             if (studyUser.getNickname() != null) {
                 editedUser.get().setNickname(studyUser.getNickname());
@@ -85,7 +85,7 @@ public class AuthService {
             log.warn("Illegal argument");
             throw new IllegalArgumentException("Please check arguments");
         }
-        Optional<StudyUser> deletedUser = studyUserRepository.findStudyUserByUserId(userId);
+        Optional<StudyUser> deletedUser = studyUserRepository.findByUserId(userId);
         if (deletedUser.isPresent()) {
             studyUserRepository.delete(deletedUser.get());
         } else {

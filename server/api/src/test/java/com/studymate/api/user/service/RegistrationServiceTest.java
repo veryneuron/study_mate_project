@@ -46,7 +46,7 @@ class RegistrationServiceTest {
     @Test
     @DisplayName("test findUser normal case")
     void testNormalFindUser() {
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         StudyUser user = registrationService.findUser("test");
         assertAll("user",
                 () -> assertEquals(studyUser.getHumiditySetting(), user.getHumiditySetting()),
@@ -58,7 +58,7 @@ class RegistrationServiceTest {
     @Test
     @DisplayName("test findUser not existing case")
     void testNotExistingGetUser() {
-        when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
+        when(studyUserRepository.findByUserId("test1")).thenReturn(Optional.empty());
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> registrationService.findUser("test1"));
         assertEquals("UserId does not exist", error.getMessage());
     }
@@ -74,7 +74,7 @@ class RegistrationServiceTest {
         newValue.setTemperatureSetting(13.12f);
         newValue.setRasberrypiAddress("098.876.543.2");
         when(studyUserRepository.save(any())).then(i -> i.getArgument(0, StudyUser.class));
-        when(studyUserRepository.findStudyUserByUserId("test")).thenReturn(Optional.of(studyUser));
+        when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         StudyUser user = registrationService.setValue(newValue);
         verify(mqttPublisher, times(1)).sendValueToClient(any(), any());
         assertAll("user",
@@ -92,7 +92,7 @@ class RegistrationServiceTest {
         newValue.setHumiditySetting(33.123f);
         newValue.setTemperatureSetting(13.12f);
         newValue.setRasberrypiAddress("098.876.543.2");
-        when(studyUserRepository.findStudyUserByUserId("test1")).thenReturn(Optional.empty());
+        when(studyUserRepository.findByUserId("test1")).thenReturn(Optional.empty());
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> registrationService.setValue(newValue));
         assertEquals("UserId does not exist", error.getMessage());
     }
