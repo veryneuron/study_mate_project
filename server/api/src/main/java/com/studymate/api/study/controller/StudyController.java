@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 public class StudyController {
     private final StudyService studyService;
     @GetMapping("/{time}/{focus}")
-    public ResponseEntity<?> retrieveCurrentFocusStudyTime(@PathVariable String time, @PathVariable String focus,
-            @RequestParam String userId) {
+    public ResponseEntity<?> retrieveStudyTime(@PathVariable String time, @PathVariable String focus,
+                                               @RequestParam String userId) {
         try {
             if (userId == null || time == null || focus == null) {
                 throw new IllegalArgumentException("Illegal argument");
