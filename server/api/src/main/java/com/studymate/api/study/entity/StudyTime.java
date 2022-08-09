@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,7 +60,7 @@ public class StudyTime {
         if (focusTime == null) {
             return Duration.between(startTimestamp, LocalDateTime.now());
         } else {
-            if (studyRecords.get(studyRecords.size() - 1).getRecordTime() == null) {
+            if (endTimestamp == null && studyRecords.get(studyRecords.size() - 1).getRecordTime() == null) {
                 return focusTime.plus(studyRecords.get(studyRecords.size() - 1).getCalculatedRecordTime());
             } else {
                 return focusTime;
@@ -72,6 +73,54 @@ public class StudyTime {
             return Duration.between(startTimestamp, LocalDateTime.now());
         } else {
             return totalTime;
+        }
+    }
+
+    public void addStudyRecordWithFocusTime(StudyRecord studyRecord) {
+        if (studyRecords == null) {
+            studyRecords = new ArrayList<>();
+        }
+        if (studyRecord != null) {
+            if (focusTime == null && endTimestamp == null) {
+                studyRecords.add(studyRecord);
+                focusTime = studyRecord.getRecordTime();
+            } else if (focusTime != null){
+                if (studyRecords.get(studyRecords.size() - 1).getStartTimestamp()
+                        .isAfter(studyRecord.getStartTimestamp())) {
+                    throw new IllegalArgumentException("StartTimestamp is less than previous startTimestamp");
+                }
+                studyRecords.add(studyRecord);
+                if (studyRecord.getRecordTime() != null) {
+                    focusTime = focusTime.plus(studyRecord.getRecordTime());
+                }
+            }
+        }
+    }
+
+    public void setEndTimestampWithTotalTime(LocalDateTime inputEndTimestamp) {
+        if (inputEndTimestamp != null) {
+            if (startTimestamp.isAfter(inputEndTimestamp)) {
+                throw new IllegalArgumentException("EndTimestamp is less than startTimestamp");
+            }
+            endTimestamp = inputEndTimestamp;
+            totalTime = Duration.between(startTimestamp, endTimestamp);
+        }
+    }
+
+    public void updateLatestStudyRecord(LocalDateTime inputLatestEndTimestamp) {
+        if (inputLatestEndTimestamp == null) {
+            throw new IllegalArgumentException("LatestEndTimestamp is null");
+        }
+        if (studyRecords != null && studyRecords.size() > 0) {
+            StudyRecord latestStudyRecord = studyRecords.get(studyRecords.size() - 1);
+            if (latestStudyRecord != null) {
+                latestStudyRecord.setEndTimestampWithRecordTime(inputLatestEndTimestamp);
+                if (latestStudyRecord.getRecordTime() != null && focusTime != null) {
+                    focusTime = focusTime.plus(latestStudyRecord.getRecordTime());
+                }
+            }
+        } else {
+            throw new IllegalStateException("StudyRecords are null or empty");
         }
     }
 }

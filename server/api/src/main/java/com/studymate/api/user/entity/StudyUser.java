@@ -8,16 +8,15 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Entity(name = "study_user")
 @Getter
 @Setter
 @ToString
+@Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class StudyUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,22 +58,38 @@ public class StudyUser {
     }
 
     public Optional<StudyTime> getLatestStudyTime() {
+        if (studyTimes == null) {
+            return Optional.empty();
+        }
         return studyTimes.stream().max(Comparator.comparing(StudyTime::getStartTimestamp));
     }
 
     public Duration getTotalStudyTime() {
+        if (studyTimes == null) {
+            return Duration.ZERO;
+        }
         return studyTimes
                 .stream()
-                .map(StudyTime::getTotalTime)
-                .reduce(Duration.ZERO,
-                        (totalDuration, duration) -> duration != null ? totalDuration.plus(duration) : totalDuration);
+                .map(StudyTime::getCalculatedNonFocusTime)
+                .reduce(Duration.ZERO, Duration::plus);
     }
 
     public Duration getTotalFocusTime() {
+        if (studyTimes == null) {
+            return Duration.ZERO;
+        }
         return studyTimes
                 .stream()
-                .map(StudyTime::getFocusTime)
-                .reduce(Duration.ZERO,
-                        (totalDuration, duration) -> duration != null ? totalDuration.plus(duration) : totalDuration);
+                .map(StudyTime::getCalculatedFocusTime)
+                .reduce(Duration.ZERO, Duration::plus);
+    }
+
+    public void addStudyTime(StudyTime studyTime) {
+        if (studyTimes == null) {
+            studyTimes = new ArrayList<>();
+        }
+        if (studyTime != null) {
+            studyTimes.add(studyTime);
+        }
     }
 }

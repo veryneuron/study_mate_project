@@ -14,7 +14,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class StudyRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +53,15 @@ public class StudyRecord {
             return Duration.between(startTimestamp, LocalDateTime.now());
         } else {
             return recordTime;
+        }
+    }
+    public void setEndTimestampWithRecordTime(LocalDateTime inputEndTimestamp) {
+        if (inputEndTimestamp != null) {
+            if (startTimestamp.isAfter(inputEndTimestamp)) {
+                throw new IllegalArgumentException("EndTimestamp is less than startTimestamp");
+            }
+            endTimestamp = inputEndTimestamp;
+            recordTime = Duration.between(startTimestamp, endTimestamp);
         }
     }
 }
