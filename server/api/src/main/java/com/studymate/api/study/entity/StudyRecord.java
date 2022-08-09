@@ -30,7 +30,7 @@ public class StudyRecord {
     @Column(name = "end_timestamp")
     private LocalDateTime endTimestamp;
     @Nullable
-    @Column(name = "record_time")
+    @Column(name = "record_time", columnDefinition = "interval")
     private Duration recordTime;
 
     @Override

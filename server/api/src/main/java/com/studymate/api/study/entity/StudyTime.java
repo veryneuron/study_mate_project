@@ -36,10 +36,10 @@ public class StudyTime {
     @ToString.Exclude
     private List<StudyRecord> studyRecords;
     @Nullable
-    @Column(name = "total_time")
+    @Column(name = "total_time", columnDefinition = "interval")
     private Duration totalTime;
     @Nullable
-    @Column(name = "focus_time")
+    @Column(name = "focus_time", columnDefinition = "interval")
     private Duration focusTime;
 
     @Override
