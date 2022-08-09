@@ -1,7 +1,9 @@
 package com.studymate.api.study.entity;
 
+import com.vladmihalcea.hibernate.type.interval.PostgreSQLIntervalType;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.TypeDef;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -11,6 +13,10 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity(name = "study_record")
+@TypeDef(
+        typeClass = PostgreSQLIntervalType.class,
+        defaultForType = Duration.class
+)
 @Getter
 @Setter
 @ToString
