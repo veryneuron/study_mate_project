@@ -3,7 +3,7 @@ package com.studymate.api.user.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studymate.api.queue.MqttPublisher;
-import com.studymate.api.user.dto.RegistrationDTO;
+import com.studymate.api.user.dto.RasberrySettingDTO;
 import com.studymate.api.user.entity.StudyUser;
 import com.studymate.api.user.repository.StudyUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +45,8 @@ public class RegistrationService {
             if (studyUser.getRasberrypiAddress() != null) {
                 oldUserValue.get().setRasberrypiAddress(studyUser.getRasberrypiAddress());
             }
-            RegistrationDTO registrationDTO = modelMapper.map(oldUserValue.get(), RegistrationDTO.class);
-            mqttPublisher.sendValueToClient("setting", objectMapper.writeValueAsString(registrationDTO));
+            RasberrySettingDTO rasberrySettingDTO = modelMapper.map(oldUserValue.get(), RasberrySettingDTO.class);
+            mqttPublisher.sendValueToClient("setting", objectMapper.writeValueAsString(rasberrySettingDTO));
             return studyUserRepository.save(oldUserValue.get());
         } else {
             log.info("UserId does not exist");
