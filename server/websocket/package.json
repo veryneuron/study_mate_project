@@ -13,12 +13,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemon": "^2.0.15"
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.8.1",
+    "mqtt": "^4.3.7",
+    "nodemon": "^2.0.15",
+    "ws": "^8.8.1"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
     "@types/jest": "^28.1.6",
+    "@types/jsonwebtoken": "^8.5.8",
     "@types/node": "^18.0.6",
+    "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",
     "babel-jest": "^28.1.3",
