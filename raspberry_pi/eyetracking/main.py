@@ -3,7 +3,8 @@ import numpy as np
 import dlib
 from scipy.spatial import distance
 import time
-from multiprocessing import Process
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+import paho.mqtt.client as mqtt
 
 global count_left
 global count_right
@@ -15,6 +16,19 @@ global count_right
 global avg_sclera_left
 global avg_sclera_right
 
+"""
+#메시지 전송
+def msg_send(myMQTTClient, msg):
+    myMQTTClient.publish(
+        topic="aws/iot",
+        QoS=1,
+        payload="{\"state\":{\"reported\":{\"unfocused\":\"" + str(msg) + "\"}}}"
+    )
+"""
+
+#메시지 전송
+def msg_send(mqttc, msg):
+    mqttc.publish("status/unfocused", msg)
 
 #눈동자 마스킹
 def eye_position(shape, gray, left, right):
@@ -175,7 +189,10 @@ def main():
     global avg_sclera_left
     global avg_sclera_right
 
-    eye_ar_thresh = 0.23
+    global unfocus_status
+    unfocus_status = False
+
+    eye_ar_thresh = 0.24
 
     face_count = 0
 
@@ -203,8 +220,28 @@ def main():
     rate_of_change = 0
     # 기준 얼굴 크기
     base_length = 0
+    """
+    myMQTTClient = AWSIoTMQTTClient("piID")
 
-    cap = cv2.VideoCapture('rtsp://172.30.1.39:8556/unicast')
+    myMQTTClient.configureEndpoint("a8qp9iz9gi35h-ats.iot.us-east-1.amazonaws.com", 8883)
+    myMQTTClient.configureCredentials("/Users/lsy/Documents/untitled folder/certs/RootCA.pem", "/Users/lsy/Documents/untitled folder/certs/private.pem.key", "/Users/lsy/Documents/untitled folder/certs/certificate.pem.crt")
+    myMQTTClient.configureOfflinePublishQueueing(-1)
+    myMQTTClient.configureDrainingFrequency(2)
+    myMQTTClient.configureConnectDisconnectTimeout(10)
+    myMQTTClient.configureMQTTOperationTimeout(5)
+    print("initializing IoT Core Topic...")
+
+    myMQTTClient.connect()
+    """
+
+    ##mqtt연결
+    mqttc = mqtt.Client("laptop")
+    mqttc.connect("172.20.10.9", 1883)
+    ##mqtt 상태 초기화
+    mqttc.publish("status/unfocused", "False")
+
+
+    cap = cv2.VideoCapture('rtsp://172.20.10.9:8556/unicast')
 
     while True:
         _, frame = cap.read()
@@ -275,21 +312,24 @@ def main():
                         temp = 0
                     count += 1
 
-                if count <= 10:
+                if count <= 20:
                     arr_temp.append(temp)
                 else:
                     del arr_temp[0]
                     arr_temp.append(temp)
 
-                if len(arr_temp) == 10:
-                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 7:
+                if len(arr_temp) == 20:
+                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 10:
                         start_time = int(time.time())
                         print("start time : " + str(start_time))
                         count_uncon = 0
                         count_con = 0
                         # 아두이노로 시작 신호 전송
                         # 서버로 시작 신호 전송
-                    elif start_time != 0 and count_con >= 10 and arr_temp.count(0) > 7:
+                        # 라즈베리파이로 시작 신호 전송
+                        msg_send(mqttc, "true")
+
+                    elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
                         end_time = int(time.time())
                         count_uncon = 0
                         count_con = 0
@@ -298,6 +338,8 @@ def main():
                         end_time = 0
                         # 아두이노로 종료 신호 전송
                         # 서버로 종료 신호 전송
+                        # 라즈베리파이로 종료 신호 전송
+                        unfocus_status = False
 
                 temp = 0
                 cv2.imshow("thresh", _thresh)
@@ -313,6 +355,7 @@ def main():
             count_uncon = 0
             count_con = 0
             print("start time : " + str(start_time))
+            msg_send(mqttc, "true")
 
 
         face_count = 0
@@ -321,8 +364,6 @@ def main():
         #ESC 입력 시 종료
         if key == 27:
             break
-
-        #아두이노에서 받은 온습도 기록 서버로 전송
 
     cap.release()
     cv2.destroyAllWindows()
