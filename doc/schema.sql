@@ -17,7 +17,8 @@ CREATE TABLE study_time (
 	start_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 	end_timestamp TIMESTAMP WITHOUT TIME ZONE NULL,
 	total_time INTERVAL NULL,
-	focus_time INTERVAL NULL
+	focus_time INTERVAL NULL,
+	user_id VARCHAR(20) NOT NULL
 	);
 DROP TABLE IF EXISTS study_record;
 CREATE TABLE study_record (
@@ -25,6 +26,7 @@ CREATE TABLE study_record (
 	study_time_sn INTEGER NOT NULL REFERENCES study_time (study_time_sn) ON DELETE CASCADE,
 	start_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
 	end_timestamp TIMESTAMP WITHOUT TIME ZONE NULL,
-	record_time INTERVAL NULL
+	record_time INTERVAL NULL,
+	user_id VARCHAR(20) NOT NULL
 	);
 	
