@@ -1,5 +1,5 @@
 import { collections } from '../database/chattingService';
-import ChattingData from '../database/chatting_data';
+import ChattingData from '../database/chattingData';
 import { WebSocketServer } from 'ws';
 import { MqttClient } from 'mqtt';
 
@@ -14,15 +14,14 @@ export function middleMqtt(wss: WebSocketServer, client: MqttClient) {
   client.on('message', async function (topic, message) {
     if (topic === 'chatting_data') {
       console.log('chatting_data received:' + message.toString());
+      const receiveData: ChattingData = JSON.parse(message.toString());
+      receiveData.type = 'message';
       try {
-        const result = await collections.chattingData?.insertOne(
-          JSON.parse(message.toString()) as ChattingData
-        );
+        const result = await collections.chattingData?.insertOne(receiveData);
+        receiveData._id = result?.insertedId;
         wss.clients.forEach(function each(ws) {
           if (ws.readyState === ws.OPEN) {
-            const temp: ChattingData = JSON.parse(message.toString());
-            temp._id = result?.insertedId;
-            ws.send(JSON.stringify(JSON.stringify(temp)));
+            ws.send(JSON.stringify(receiveData));
           }
         });
       } catch (err) {
@@ -30,9 +29,18 @@ export function middleMqtt(wss: WebSocketServer, client: MqttClient) {
       }
     } else if (topic === 'study_record') {
       console.log('study_record received:' + message.toString());
+      const userIdValue: string = JSON.parse(message.toString()).userId;
       wss.clients.forEach(function each(ws) {
         if (ws.readyState === ws.OPEN) {
-          ws.send(message.toString());
+          ws.send(
+            new ChattingData(
+              userIdValue,
+              message.toString(),
+              '',
+              new Date(),
+              'study_record'
+            )
+          );
         }
       });
     }

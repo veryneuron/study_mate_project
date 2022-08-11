@@ -1,6 +1,6 @@
 import { verify } from 'jsonwebtoken';
 import { collections } from '../database/chattingService';
-import ChattingData from '../database/chatting_data';
+import ChattingData from '../database/chattingData';
 import { WebSocket, WebSocketServer } from 'ws';
 
 export function middleWebsocket(
