@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon",
     "lint": "eslint . --ext .ts",
-    "test": "jest",
+    "test": "jest --detectOpenHandles --forceExit",
     "prettier-format": "prettier --config .prettierrc --write '**/*.{ts,js}'"
   },
   "keywords": [],
