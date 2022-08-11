@@ -62,30 +62,36 @@ class StudyControllerTest {
         StudyTime studyTime1 = new StudyTime();
         studyTime1.setStartTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50));
         studyTime1.setUserSerialNumber(savedUser.get().getUserSerialNumber());
+        studyTime1.setUserId("test");
         StudyTime studyTime2 = new StudyTime();
         studyTime2.setStartTimestamp(LocalDateTime.now().minusHours(3).minusMinutes(50));
         studyTime2.setUserSerialNumber(savedUser.get().getUserSerialNumber());
+        studyTime2.setUserId("test");
         StudyTime savedStudyTime1 = studyTimeRepository.save(studyTime1);
         StudyTime savedStudyTime2 = studyTimeRepository.save(studyTime2);
 
         StudyRecord studyRecord1 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
                 .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50))
+                .userId("test")
                 .build();
         studyRecord1.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(1).minusMinutes(30));
         StudyRecord studyRecord2 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
                 .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(20))
+                .userId("test")
                 .build();
         studyRecord2.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(1).minusMinutes(10));
         StudyRecord studyRecord3 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
                 .startTimestamp(LocalDateTime.now().minusHours(3).minusMinutes(50))
+                .userId("test")
                 .build();
         studyRecord3.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(3).minusMinutes(30));
         StudyRecord studyRecord4 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
                 .startTimestamp(LocalDateTime.now().minusHours(3).minusMinutes(20))
+                .userId("test")
                 .build();
         studyRecord4.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(3).minusMinutes(10));
 

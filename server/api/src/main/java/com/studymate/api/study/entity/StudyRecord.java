@@ -40,6 +40,9 @@ public class StudyRecord {
     @Nullable
     @Column(name = "record_time", columnDefinition = "interval")
     private Duration recordTime;
+    @NotNull
+    @Column(name = "user_id")
+    private String userId;
 
     @Override
     public boolean equals(Object o) {

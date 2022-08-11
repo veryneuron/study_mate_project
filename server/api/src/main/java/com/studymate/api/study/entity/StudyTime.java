@@ -48,6 +48,9 @@ public class StudyTime {
     @Nullable
     @Column(name = "focus_time", columnDefinition = "interval")
     private Duration focusTime;
+    @NotNull
+    @Column(name = "user_id")
+    private String userId;
 
     @Override
     public boolean equals(Object o) {
