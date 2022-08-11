@@ -7,7 +7,7 @@ export function middleWebsocket(wss: WebSocketServer) {
   wss.on('connection', function (ws, req) {
     try {
       const token = verify(
-        req.headers.authorization ?? '',
+        req.url?.substring(1) ?? '',
         process.env.JWT_SECRET ?? ''
       );
       console.log(`User connected: ${token.sub}`);
