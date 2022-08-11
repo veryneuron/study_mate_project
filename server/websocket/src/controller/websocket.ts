@@ -48,7 +48,8 @@ export function middleWebsocket(
 
     try {
       const chattingData = (await collections.chattingData
-        ?.find({})
+        ?.find()
+        .sort({ _id: 1 })
         .toArray()) as ChattingData[];
       ws.send(JSON.stringify(chattingData));
     } catch (err) {
