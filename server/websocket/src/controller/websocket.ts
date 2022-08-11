@@ -7,26 +7,37 @@ export function middleWebsocket(
   wss: WebSocketServer,
   userMap: Map<WebSocket, string>
 ) {
-  wss.on('connection', function (ws, req) {
+  wss.on('connection', async function (ws, req) {
     try {
       const token = verify(
         req.url?.substring(1) ?? '',
         process.env.JWT_SECRET ?? ''
       );
-      userMap.set(ws, <string>token.sub);
       console.log(`User connected: ${token.sub}`);
 
-      const enterRoom = new ChattingData(
-        <string>token.sub,
-        '',
-        '',
-        new Date(),
-        'connection'
-      );
+      userMap.forEach((value) => {
+        ws.send(
+          JSON.stringify(
+            new ChattingData(value, '', '', new Date(), 'connection')
+          )
+        );
+      });
 
-      wss.clients.forEach(function each(ws) {
-        if (ws.readyState === ws.OPEN) {
-          ws.send(JSON.stringify(enterRoom));
+      userMap.set(ws, <string>token.sub);
+
+      wss.clients.forEach(function each(wsClient) {
+        if (wsClient.readyState === wsClient.OPEN && wsClient !== ws) {
+          wsClient.send(
+            JSON.stringify(
+              new ChattingData(
+                <string>token.sub,
+                '',
+                '',
+                new Date(),
+                'connection'
+              )
+            )
+          );
         }
       });
     } catch (err) {
@@ -34,26 +45,15 @@ export function middleWebsocket(
       ws.send(JSON.stringify(chatData));
       ws.close();
     }
-    ws.on('open', async function () {
-      userMap.forEach((value) => {
-        const currentUser = new ChattingData(
-          value,
-          '',
-          '',
-          new Date(),
-          'connection'
-        );
-        ws.send(JSON.stringify(currentUser));
-      });
-      try {
-        const chattingData = (await collections.chattingData
-          ?.find({})
-          .toArray()) as ChattingData[];
-        ws.send(JSON.stringify(chattingData));
-      } catch (err) {
-        console.log(err);
-      }
-    });
+
+    try {
+      const chattingData = (await collections.chattingData
+        ?.find({})
+        .toArray()) as ChattingData[];
+      ws.send(JSON.stringify(chattingData));
+    } catch (err) {
+      console.log(err);
+    }
     ws.on('close', function (num) {
       const exitRoom = new ChattingData(
         userMap.get(this) ?? '',
