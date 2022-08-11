@@ -48,18 +48,21 @@ class MeasurementControllerTest {
                 .humidity(75.12f)
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.102")
+                .userId("test")
                 .build();
         MeasurementData measurementData2 = MeasurementData.builder()
                 .temperature(25.6f)
                 .humidity(82.10f)
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.102")
+                .userId("test")
                 .build();
         MeasurementData measurementData3 = MeasurementData.builder()
                 .temperature(41.2f)
                 .humidity(72.11f)
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.103")
+                .userId("test10")
                 .build();
         measurementDataRepository.save(measurementData);
         measurementDataRepository.save(measurementData2);

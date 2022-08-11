@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MeasurementDataRepository extends MongoRepository<MeasurementData, String> {
-    List<MeasurementData> findByRaspberrypiAddress(String raspberrypiAddress);
+    List<MeasurementData> findByUserIdOrderByTimestampDesc(String userId);
 }

@@ -20,5 +20,6 @@ public class MeasurementData {
     private LocalDateTime timestamp;
     @Length(max = 45, message = "Maximum length of address is 45")
     private String raspberrypiAddress;
+    private String userId;
 
 }
