@@ -224,4 +224,77 @@ class StudyControllerTest {
                         .string(containsString(studyUser.getTotalStudyTime().toString())));
     }
 
+    @Test
+    @DisplayName("test checkStudying not studying case")
+    void checkStudyingNotStudyTest() throws Exception {
+        mockMvc.perform(get("/api/study/check")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", studyUser.getUserId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(containsString("false")));
+    }
+
+    @Test
+    @DisplayName("test checkStudying studying case")
+    void checkStudyingStudyTest() throws Exception {
+        StudyUser nowStudying = StudyUser.builder()
+                .userId("test2").nickname("testnick2").userPassword("testpassword2").build();
+        authService.createUser(nowStudying);
+        Optional<StudyUser> savedUser = studyUserRepository.findByUserId("test2");
+        StudyTime studyTime1 = new StudyTime();
+        studyTime1.setStartTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50));
+        studyTime1.setUserSerialNumber(savedUser.get().getUserSerialNumber());
+        studyTime1.setUserId("test2");
+        StudyTime savedStudyTime1 = studyTimeRepository.save(studyTime1);
+
+        StudyRecord studyRecord1 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
+                .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50))
+                .userId("test2")
+                .build();
+        studyRecord1.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(1).minusMinutes(30));
+        StudyRecord studyRecord2 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
+                .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(20))
+                .userId("test2")
+                .build();
+
+        studyTime1.addStudyRecordWithFocusTime(studyRecord1);
+        studyTime1.addStudyRecordWithFocusTime(studyRecord2);
+
+        savedUser.get().addStudyTime(studyTime1);
+        studyUserRepository.save(savedUser.get());
+
+        accessToken = authService.authenticate(nowStudying.getUserId(), "testpassword2");
+        mockMvc.perform(get("/api/study/check")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", nowStudying.getUserId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(containsString("true")));
+    }
+
+    @Test
+    @DisplayName("test checkStudying empty time case")
+    void checkStudyingEmptyTimeTest() throws Exception {
+        StudyUser nowStudying = StudyUser.builder()
+                .userId("test3").nickname("testnick3").userPassword("testpassword3").build();
+        authService.createUser(nowStudying);
+
+        accessToken = authService.authenticate(nowStudying.getUserId(), "testpassword3");
+        mockMvc.perform(get("/api/study/check")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("userId", nowStudying.getUserId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(containsString("false")));
+    }
+
 }

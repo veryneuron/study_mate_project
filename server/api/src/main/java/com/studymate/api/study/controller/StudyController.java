@@ -44,4 +44,18 @@ public class StudyController {
         }
     }
 
+    @GetMapping("check")
+    public ResponseEntity<?> checkStudying(@RequestParam String userId) {
+        try {
+            if (userId == null) {
+                throw new IllegalArgumentException("Illegal argument");
+            }
+            return ResponseEntity.ok(studyService.checkStudying(userId));
+
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to get data - Illegal Argument");
+        }
+    }
+
 }
