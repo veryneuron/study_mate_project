@@ -1,15 +1,19 @@
 import { verify } from 'jsonwebtoken';
 import { collections } from '../database/chattingService';
 import ChattingData from '../database/chatting_data';
-import { WebSocketServer } from 'ws';
+import { WebSocket, WebSocketServer } from 'ws';
 
-export function middleWebsocket(wss: WebSocketServer) {
+export function middleWebsocket(
+  wss: WebSocketServer,
+  userMap: Map<WebSocket, string>
+) {
   wss.on('connection', function (ws, req) {
     try {
       const token = verify(
         req.url?.substring(1) ?? '',
         process.env.JWT_SECRET ?? ''
       );
+      userMap.set(ws, <string>token.sub);
       console.log(`User connected: ${token.sub}`);
     } catch (err) {
       ws.send('Unauthorized');
