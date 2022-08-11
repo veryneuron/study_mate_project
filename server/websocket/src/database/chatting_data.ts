@@ -5,6 +5,7 @@ export default class ChattingData {
     public message: string,
     public rasberrypi_address: string,
     public timestamp: Date,
+    public type: string,
     public _id?: ObjectId
   ) {}
 }
