@@ -15,11 +15,36 @@ export function middleWebsocket(
       );
       userMap.set(ws, <string>token.sub);
       console.log(`User connected: ${token.sub}`);
+
+      const enterRoom = new ChattingData(
+        <string>token.sub,
+        '',
+        '',
+        new Date(),
+        'connection'
+      );
+
+      wss.clients.forEach(function each(ws) {
+        if (ws.readyState === ws.OPEN) {
+          ws.send(JSON.stringify(enterRoom));
+        }
+      });
     } catch (err) {
-      ws.send('Unauthorized');
+      const chatData = new ChattingData('', '', '', new Date(), 'unauthorized');
+      ws.send(JSON.stringify(chatData));
       ws.close();
     }
     ws.on('open', async function () {
+      userMap.forEach((value) => {
+        const currentUser = new ChattingData(
+          value,
+          '',
+          '',
+          new Date(),
+          'connection'
+        );
+        ws.send(JSON.stringify(currentUser));
+      });
       try {
         const chattingData = (await collections.chattingData
           ?.find({})
@@ -30,7 +55,19 @@ export function middleWebsocket(
       }
     });
     ws.on('close', function (num) {
-      console.log(`User disconnected : ${num}`);
+      const exitRoom = new ChattingData(
+        userMap.get(this) ?? '',
+        '',
+        '',
+        new Date(),
+        'close'
+      );
+      wss.clients.forEach(function each(ws) {
+        if (ws.readyState === ws.OPEN) {
+          ws.send(JSON.stringify(exitRoom));
+        }
+      });
+      console.log(`User disconnected : ${userMap.get(this) ?? ''} - ${num}`);
     });
     ws.on('error', function (err) {
       console.log(err);
