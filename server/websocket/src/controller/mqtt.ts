@@ -1,4 +1,4 @@
-import { collections } from '../database/chattingService';
+import { collections } from '../database/chattingConnector';
 import ChattingData from '../database/chattingData';
 import { WebSocketServer } from 'ws';
 import { MqttClient } from 'mqtt';

@@ -1,5 +1,5 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { connectToDatabase } from './database/chattingService';
+import { connectToDatabase } from './database/chattingConnector';
 import { connect } from 'mqtt';
 import { init } from './init';
 

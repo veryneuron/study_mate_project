@@ -1,5 +1,5 @@
 import { verify } from 'jsonwebtoken';
-import { collections } from '../database/chattingService';
+import { collections } from '../database/chattingConnector';
 import ChattingData from '../database/chattingData';
 import { WebSocket, WebSocketServer } from 'ws';
 
