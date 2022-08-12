@@ -47,11 +47,14 @@ export function middleWebsocket(
     }
 
     try {
-      const chattingData = (await collections.chattingData
+      const chattingList = (await collections.chattingData
         ?.find()
         .sort({ _id: 1 })
         .toArray()) as ChattingData[];
-      ws.send(JSON.stringify(chattingData));
+
+      chattingList?.forEach((chatting) => {
+        ws.send(JSON.stringify(chatting));
+      });
     } catch (err) {
       console.log(err);
     }
