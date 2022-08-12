@@ -37,13 +37,13 @@ describe('websocket test', function () {
     await waitForSocketState(wsClient, WebSocket.OPEN);
     expect(wsClient.readyState).toBe(WebSocket.OPEN);
     wsClient.close();
+    await waitForSocketState(wsClient, WebSocket.CLOSED);
   });
 
   test('connect test without jwt token', async () => {
     const wsClient = new WebSocket(`ws://localhost:${port}`);
     await waitForSocketState(wsClient, WebSocket.CLOSED);
     expect(wsClient.readyState).toBe(WebSocket.CLOSED);
-    wsClient.close();
   });
 
   test('several user connection test', async () => {
@@ -63,43 +63,6 @@ describe('websocket test', function () {
     await waitForSocketState(wsClient2, WebSocket.CLOSED);
   });
 
-  test('initialize message test', async () => {
-    const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
-    await waitForSocketState(wsClient, WebSocket.OPEN);
-
-    await collections.chattingData?.insertOne(
-      new ChattingData(
-        'testaccount3',
-        'test message3',
-        '111.111',
-        new Date('2022-08-10T03:24:00.000Z'),
-        'message'
-      )
-    );
-    await collections.chattingData?.insertOne(
-      new ChattingData(
-        'testaccount4',
-        'test message4',
-        '111.111',
-        new Date(),
-        'message'
-      )
-    );
-
-    wsClient.on('message', (data) => {
-      const receiveMessage = JSON.parse(data.toString()) as ChattingData[];
-      expect(receiveMessage[0].userId).toBe('testaccount3');
-      expect(receiveMessage[0].type).toBe('message');
-      expect(receiveMessage[1].userId).toBe('testaccount4');
-      expect(receiveMessage[1].type).toBe('message');
-      wsClient.close();
-    });
-
-    wsClient.close();
-    await waitForSocketState(wsClient, WebSocket.CLOSED);
-    await collections?.chattingData?.deleteMany({});
-  });
-
   test('connection close broadcasting test', async () => {
     const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
     await waitForSocketState(wsClient, WebSocket.OPEN);
@@ -115,6 +78,67 @@ describe('websocket test', function () {
     wsClient2.close();
 
     await waitForSocketState(wsClient2, WebSocket.CLOSED);
+    await waitForSocketState(wsClient, WebSocket.CLOSED);
+  });
+
+  // test('initialize message test', async () => {
+  //   await collections?.chattingData?.deleteMany({});
+  //   await collections.chattingData?.insertOne(
+  //     new ChattingData(
+  //       'testaccount3',
+  //       'test message3',
+  //       '111.111',
+  //       new Date('2022-08-10T03:24:00.000Z'),
+  //       'message'
+  //     )
+  //   );
+  //   await collections.chattingData?.insertOne(
+  //     new ChattingData(
+  //       'testaccount4',
+  //       'test message4',
+  //       '111.111',
+  //       new Date(),
+  //       'message'
+  //     )
+  //   );
+  //
+  //   const count = await collections.chattingData?.countDocuments();
+  //   expect(count).toBe(2);
+  //
+  //   let flag = false;
+  //   const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
+  //   wsClient.on('message', (data) => {
+  //     console.log(data.toString());
+  //     const receiveMessage = JSON.parse(data.toString()) as ChattingData;
+  //     if (flag === false) {
+  //       expect(receiveMessage.userId).toBe('testaccount3');
+  //       expect(receiveMessage.type).toBe('message');
+  //       flag = true;
+  //     } else {
+  //       expect(receiveMessage.userId).toBe('testaccount4');
+  //       expect(receiveMessage.type).toBe('message');
+  //       wsClient.close();
+  //     }
+  //   });
+  //
+  //   await collections?.chattingData?.deleteMany({});
+  //   await waitForSocketState(wsClient, WebSocket.CLOSED);
+  // });
+
+  test('get existing user information test', async () => {
+    await collections?.chattingData?.deleteMany({});
+    const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
+    await waitForSocketState(wsClient, WebSocket.OPEN);
+
+    const wsClient2 = new WebSocket(`ws://localhost:${port}/${testToken}`);
+    wsClient2.on('message', (data) => {
+      const receiveData = JSON.parse(data.toString()) as ChattingData;
+      expect(receiveData.userId).toBe('testaccount');
+      expect(receiveData.type).toBe('connection');
+      wsClient2.close();
+    });
+    await waitForSocketState(wsClient2, WebSocket.CLOSED);
+    wsClient.close();
     await waitForSocketState(wsClient, WebSocket.CLOSED);
   });
 });
