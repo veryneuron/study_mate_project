@@ -23,6 +23,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@Builder
 @RequiredArgsConstructor
 public class StudyTime {
     @Id

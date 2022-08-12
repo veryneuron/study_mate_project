@@ -11,16 +11,8 @@ public class MqttConsumer {
     public void receiveSetting(String message) {
         log.info("SettingQueue received: " + message);
     }
-    @RabbitListener(queues = "studyTimeQueue")
-    public void receiveStudyTime(String message) {
-        log.info("StudyTimeQueue received: " + message);
-    }
-    @RabbitListener(queues = "studyRecordQueue")
-    public void receiveStudyRecord(String message) {
-        log.info("StudyRecordQueue received: " + message);
-    }
-    @RabbitListener(queues = "chattingQueue")
-    public void receiveChatting(String message) {
-        log.info("ChattingQueue received: " + message);
+    @RabbitListener(queues = "signalQueue")
+    public void receiveSignal(String message) {
+        log.info("signalQueue received: " + message);
     }
 }

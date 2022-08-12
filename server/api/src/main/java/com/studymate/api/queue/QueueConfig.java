@@ -24,8 +24,8 @@ public class QueueConfig {
         return new Queue("studyRecordQueue");
     }
     @Bean
-    public Queue chattingQueue() {
-        return new Queue("chattingQueue");
+    public Queue signalQueue() {
+        return new Queue("signalQueue");
     }
 
     @Bean
@@ -62,10 +62,10 @@ public class QueueConfig {
     }
     @Bean
     public Binding bindChatting() {
-        return new Binding("chattingQueue"
+        return new Binding("signalQueue"
                 ,Binding.DestinationType.QUEUE
                 ,"amq.topic"
-                ,"chatting_data"
+                ,"signal"
                 , null);
     }
 }
