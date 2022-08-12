@@ -3,8 +3,8 @@ import numpy as np
 import dlib
 from scipy.spatial import distance
 import time
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import paho.mqtt.client as mqtt
+import threading
 
 global count_left
 global count_right
@@ -16,19 +16,18 @@ global count_right
 global avg_sclera_left
 global avg_sclera_right
 
-"""
-#메시지 전송
-def msg_send(myMQTTClient, msg):
-    myMQTTClient.publish(
-        topic="aws/iot",
-        QoS=1,
-        payload="{\"state\":{\"reported\":{\"unfocused\":\"" + str(msg) + "\"}}}"
-    )
-"""
+def sub_message(client):
+    rc = 0
+    while rc == 0:
+        rc = client.loop()
+
+def on_message(client, userdata, message):
+    print("Topic : ", message.topic)
+    print("message received", str(message.payload.decode("utf-8")))
 
 #메시지 전송
-def msg_send(mqttc, msg):
-    mqttc.publish("status/unfocused", msg)
+def msg_send(mqttc, topic, msg):
+    mqttc.publish(topic, msg)
 
 #눈동자 마스킹
 def eye_position(shape, gray, left, right):
@@ -220,26 +219,17 @@ def main():
     rate_of_change = 0
     # 기준 얼굴 크기
     base_length = 0
-    """
-    myMQTTClient = AWSIoTMQTTClient("piID")
-
-    myMQTTClient.configureEndpoint("a8qp9iz9gi35h-ats.iot.us-east-1.amazonaws.com", 8883)
-    myMQTTClient.configureCredentials("/Users/lsy/Documents/untitled folder/certs/RootCA.pem", "/Users/lsy/Documents/untitled folder/certs/private.pem.key", "/Users/lsy/Documents/untitled folder/certs/certificate.pem.crt")
-    myMQTTClient.configureOfflinePublishQueueing(-1)
-    myMQTTClient.configureDrainingFrequency(2)
-    myMQTTClient.configureConnectDisconnectTimeout(10)
-    myMQTTClient.configureMQTTOperationTimeout(5)
-    print("initializing IoT Core Topic...")
-
-    myMQTTClient.connect()
-    """
 
     ##mqtt연결
     mqttc = mqtt.Client("laptop")
     mqttc.connect("172.20.10.9", 1883)
+    mqttc.subscribe("status/#")
+    mqttc.on_message = on_message
     ##mqtt 상태 초기화
-    mqttc.publish("status/unfocused", "False")
+    msg_send(mqttc, "status/focused", "False")
 
+    thread_recv = threading.Thread(target=sub_message, args=(mqttc,))
+    thread_recv.start()
 
     cap = cv2.VideoCapture('rtsp://172.20.10.9:8556/unicast')
 
@@ -327,7 +317,7 @@ def main():
                         # 아두이노로 시작 신호 전송
                         # 서버로 시작 신호 전송
                         # 라즈베리파이로 시작 신호 전송
-                        msg_send(mqttc, "true")
+                        msg_send(mqttc, "status/unfocused", "True")
 
                     elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
                         end_time = int(time.time())
@@ -339,7 +329,7 @@ def main():
                         # 아두이노로 종료 신호 전송
                         # 서버로 종료 신호 전송
                         # 라즈베리파이로 종료 신호 전송
-                        unfocus_status = False
+                        msg_send(mqttc, "status/unfocused", "False")
 
                 temp = 0
                 cv2.imshow("thresh", _thresh)
@@ -355,7 +345,7 @@ def main():
             count_uncon = 0
             count_con = 0
             print("start time : " + str(start_time))
-            msg_send(mqttc, "true")
+            msg_send(mqttc, "status/unfocused", "True")
 
 
         face_count = 0
