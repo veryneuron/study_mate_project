@@ -68,6 +68,7 @@ export function middleWebsocket(
           ws.send(JSON.stringify(exitRoom));
         }
       });
+      userMap.delete(this);
       console.log(`User disconnected : ${userMap.get(this) ?? ''} - ${num}`);
     });
     ws.on('error', function (err) {
