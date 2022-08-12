@@ -66,12 +66,14 @@ export function middleWebsocket(
         new Date(),
         'close'
       );
-      wss.clients.forEach(function each(ws) {
-        if (ws.readyState === ws.OPEN) {
-          ws.send(JSON.stringify(exitRoom));
-        }
-      });
-      userMap.delete(this);
+      if (userMap.has(this)) {
+        wss.clients.forEach(function each(ws) {
+          if (ws.readyState === ws.OPEN) {
+            ws.send(JSON.stringify(exitRoom));
+          }
+        });
+        userMap.delete(this);
+      }
       console.log(`User disconnected : ${userMap.get(this) ?? ''} - ${num}`);
     });
     ws.on('error', function (err) {
