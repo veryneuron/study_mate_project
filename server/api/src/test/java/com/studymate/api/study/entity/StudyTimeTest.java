@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -160,5 +161,30 @@ class StudyTimeTest {
         assertEquals(studyRecord1.getCalculatedRecordTime()
                 .plus(studyRecord2.getCalculatedRecordTime())
                 .plus(studyRecord3.getCalculatedRecordTime()), studyTime.getCalculatedFocusTime());
+    }
+
+    @Test
+    @DisplayName("test getLatestStudyRecord null case exception")
+    void getLatestStudyRecordNullExceptionTest() {
+        StudyTime nullStudyTime = new StudyTime();
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                nullStudyTime::getLatestStudyRecord);
+        assertEquals("StudyRecords are null or empty", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("test getLatestStudyRecord empty case exception")
+    void getLatestStudyRecordEmptyExceptionTest() {
+        StudyTime emptyStudyTime = new StudyTime();
+        emptyStudyTime.setStudyRecords(new ArrayList<>());
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                emptyStudyTime::getLatestStudyRecord);
+        assertEquals("StudyRecords are null or empty", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("test getLatestStudyRecord normal case exception")
+    void getLatestStudyRecordNormalTest() {
+        assertEquals(studyRecord2, studyTime.getLatestStudyRecord());
     }
 }

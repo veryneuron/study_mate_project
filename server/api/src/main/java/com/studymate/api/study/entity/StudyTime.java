@@ -109,7 +109,9 @@ public class StudyTime {
     }
 
     public void setEndTimestampWithTotalTime(LocalDateTime inputEndTimestamp) {
-        if (inputEndTimestamp != null) {
+        if (inputEndTimestamp == null) {
+            throw new IllegalArgumentException("InputEndTimestamp is null");
+        } else {
             if (startTimestamp.isAfter(inputEndTimestamp)) {
                 throw new IllegalArgumentException("EndTimestamp is less than startTimestamp");
             }
@@ -130,6 +132,14 @@ public class StudyTime {
                     focusTime = focusTime.plus(latestStudyRecord.getRecordTime());
                 }
             }
+        } else {
+            throw new IllegalStateException("StudyRecords are null or empty");
+        }
+    }
+
+    public StudyRecord getLatestStudyRecord() {
+        if (studyRecords != null && studyRecords.size() > 0) {
+            return studyRecords.get(studyRecords.size() - 1);
         } else {
             throw new IllegalStateException("StudyRecords are null or empty");
         }
