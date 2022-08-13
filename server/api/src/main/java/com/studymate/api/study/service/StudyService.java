@@ -51,7 +51,9 @@ public class StudyService {
     public void addStudyTime(StudyDTO studyTimeDto) {
         Optional<StudyUser> studyUser = findStudyUser(studyTimeDto.getUserId());
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
-        if (studyTimeDto.getEndTimestamp() == null && (resultTime.isEmpty() || resultTime.get().getEndTimestamp() != null)) {
+        if (!studyUser.get().isTiming()
+                && studyTimeDto.getEndTimestamp() == null
+                && studyTimeDto.getStartTimestamp() != null) {
             studyUser.get().addStudyTime(StudyTime.builder()
                     .userSerialNumber(studyUser.get().getUserSerialNumber())
                     .startTimestamp(studyTimeDto.getStartTimestamp())
@@ -65,10 +67,9 @@ public class StudyService {
                             .startTimestamp(studyTimeDto.getStartTimestamp())
                             .build());
             studyUserRepository.save(savedUser);
-        } else if (resultTime.isPresent() && resultTime.get().getEndTimestamp() == null) {
+        } else if (studyUser.get().isTiming() && studyTimeDto.getEndTimestamp() != null) {
             resultTime.get().setEndTimestampWithTotalTime(studyTimeDto.getEndTimestamp());
-            StudyRecord latestRecord = resultTime.get().getStudyRecords().get(resultTime.get().getStudyRecords().size() - 1);
-            if (latestRecord.getEndTimestamp() == null) {
+            if (studyUser.get().isRecording()) {
                 resultTime.get().updateLatestStudyRecord(studyTimeDto.getEndTimestamp());
             }
             studyUserRepository.save(studyUser.get());
