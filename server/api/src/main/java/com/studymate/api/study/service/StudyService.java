@@ -20,11 +20,7 @@ import java.util.Optional;
 public class StudyService {
     private final StudyUserRepository studyUserRepository;
     public Duration calculateCurrentFocusStudyTime(String userId) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(userId);
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
         if (resultTime.isEmpty()) {
             return Duration.ZERO;
@@ -33,11 +29,7 @@ public class StudyService {
         }
     }
     public Duration calculateCurrentNonFocusStudyTime(String userId) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(userId);
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
         if (resultTime.isEmpty()) {
             return Duration.ZERO;
@@ -47,29 +39,17 @@ public class StudyService {
     }
 
     public Duration calculateTotalFocusStudyTime(String userId) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(userId);
         return studyUser.get().getTotalFocusTime();
     }
 
     public Duration calculateTotalNonFocusStudyTime(String userId) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(userId);
         return studyUser.get().getTotalStudyTime();
     }
 
     public Boolean checkStudying(String userId) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(userId);
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
         if (resultTime.isEmpty()) {
             return false;
@@ -85,11 +65,7 @@ public class StudyService {
 
     @Transactional
     public void addStudyTime(StudyDTO studyTimeDto) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(studyTimeDto.getUserId());
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(studyTimeDto.getUserId());
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
         if (resultTime.isEmpty() && studyTimeDto.getEndTimestamp() == null) {
             studyUser.get().addStudyTime(StudyTime.builder()
@@ -117,11 +93,7 @@ public class StudyService {
     }
 
     public void addStudyRecord(StudyDTO studyTimeDto) {
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(studyTimeDto.getUserId());
-        if (studyUser.isEmpty()) {
-            log.info("UserId does not exist");
-            throw new IllegalArgumentException("UserId does not exist");
-        }
+        Optional<StudyUser> studyUser = findStudyUser(studyTimeDto.getUserId());
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
         if (resultTime.isEmpty()) {
             throw new IllegalArgumentException(studyTimeDto + " - No study time");
@@ -145,5 +117,14 @@ public class StudyService {
         } else {
             throw new IllegalArgumentException(studyTimeDto + "Illegal time");
         }
+    }
+
+    private Optional<StudyUser> findStudyUser(String userId) {
+        Optional<StudyUser> studyUser = studyUserRepository.findByUserId(userId);
+        if (studyUser.isEmpty()) {
+            log.info("UserId does not exist");
+            throw new IllegalArgumentException("UserId does not exist");
+        }
+        return studyUser;
     }
 }

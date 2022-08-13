@@ -25,6 +25,7 @@ import java.util.Objects;
 @ToString
 @Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class StudyTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
