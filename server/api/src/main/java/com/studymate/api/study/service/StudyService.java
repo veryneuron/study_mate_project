@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -48,26 +47,11 @@ public class StudyService {
         return studyUser.get().getTotalStudyTime();
     }
 
-    public Boolean checkStudying(String userId) {
-        Optional<StudyUser> studyUser = findStudyUser(userId);
-        Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
-        if (resultTime.isEmpty()) {
-            return false;
-        } else {
-            List<StudyRecord> records= resultTime.get().getStudyRecords();
-            if (records == null || records.isEmpty()) {
-                return false;
-            } else {
-                return records.get(records.size() - 1).getEndTimestamp() == null;
-            }
-        }
-    }
-
     @Transactional
     public void addStudyTime(StudyDTO studyTimeDto) {
         Optional<StudyUser> studyUser = findStudyUser(studyTimeDto.getUserId());
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
-        if (resultTime.isEmpty() && studyTimeDto.getEndTimestamp() == null) {
+        if (studyTimeDto.getEndTimestamp() == null && (resultTime.isEmpty() || resultTime.get().getEndTimestamp() != null)) {
             studyUser.get().addStudyTime(StudyTime.builder()
                     .userSerialNumber(studyUser.get().getUserSerialNumber())
                     .startTimestamp(studyTimeDto.getStartTimestamp())
@@ -81,37 +65,36 @@ public class StudyService {
                             .startTimestamp(studyTimeDto.getStartTimestamp())
                             .build());
             studyUserRepository.save(savedUser);
-        } else if (resultTime.isPresent()
-                && studyTimeDto.getEndTimestamp() != null
-                && resultTime.get().getEndTimestamp() == null) {
-            resultTime.get().setEndTimestampWithTotalTime(studyTimeDto.getStartTimestamp());
-            resultTime.get().updateLatestStudyRecord(studyTimeDto.getEndTimestamp());
+        } else if (resultTime.isPresent() && resultTime.get().getEndTimestamp() == null) {
+            resultTime.get().setEndTimestampWithTotalTime(studyTimeDto.getEndTimestamp());
+            StudyRecord latestRecord = resultTime.get().getStudyRecords().get(resultTime.get().getStudyRecords().size() - 1);
+            if (latestRecord.getEndTimestamp() == null) {
+                resultTime.get().updateLatestStudyRecord(studyTimeDto.getEndTimestamp());
+            }
             studyUserRepository.save(studyUser.get());
         } else {
             throw new IllegalArgumentException(studyTimeDto + "Illegal time");
         }
     }
 
+    @Transactional
     public void addStudyRecord(StudyDTO studyTimeDto) {
         Optional<StudyUser> studyUser = findStudyUser(studyTimeDto.getUserId());
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
         if (resultTime.isEmpty()) {
             throw new IllegalArgumentException(studyTimeDto + " - No study time");
         }
-        if (resultTime.get().getStudyRecords()
-                .get(resultTime.get().getStudyRecords().size() - 1)
-                .getEndTimestamp() != null
-                && studyTimeDto.getEndTimestamp() == null) {
+        if (studyUser.get().isTiming()
+                && !studyUser.get().isRecording()
+                && studyTimeDto.getEndTimestamp() == null
+                && studyTimeDto.getStartTimestamp() != null) {
             resultTime.get().addStudyRecordWithFocusTime(StudyRecord.builder()
                     .studyTimeSerialNumber(resultTime.get().getStudyTimeSerialNumber())
                     .userId(studyTimeDto.getUserId())
                     .startTimestamp(studyTimeDto.getStartTimestamp())
                     .build());
             studyUserRepository.save(studyUser.get());
-        } else if (resultTime.get().getStudyRecords()
-                .get(resultTime.get().getStudyRecords().size() - 1)
-                .getEndTimestamp() == null
-                && studyTimeDto.getEndTimestamp() != null) {
+        } else if (studyUser.get().isTiming() && studyUser.get().isRecording() && studyTimeDto.getEndTimestamp() != null) {
             resultTime.get().updateLatestStudyRecord(studyTimeDto.getEndTimestamp());
             studyUserRepository.save(studyUser.get());
         } else {
