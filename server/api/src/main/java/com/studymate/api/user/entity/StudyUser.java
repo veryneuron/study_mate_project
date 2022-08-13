@@ -1,5 +1,6 @@
 package com.studymate.api.user.entity;
 
+import com.studymate.api.study.entity.StudyRecord;
 import com.studymate.api.study.entity.StudyTime;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -90,6 +91,19 @@ public class StudyUser {
         }
         if (studyTime != null) {
             studyTimes.add(studyTime);
+        }
+    }
+
+    public Boolean isTiming() {
+        return getLatestStudyTime().isPresent() && getLatestStudyTime().get().getEndTimestamp() == null;
+    }
+
+    public Boolean isRecording() {
+        if (getLatestStudyTime().isPresent()) {
+            List<StudyRecord> records = getLatestStudyTime().get().getStudyRecords();
+            return records != null && records.size() > 0 && records.get(records.size() - 1).getEndTimestamp() == null;
+        } else {
+            return false;
         }
     }
 }

@@ -2,6 +2,7 @@ package com.studymate.api.user.entity;
 
 import com.studymate.api.study.entity.StudyRecord;
 import com.studymate.api.study.entity.StudyTime;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,12 @@ class StudyUserTest {
                 .build();
         studyUser.addStudyTime(studyTime1);
         studyUser.addStudyTime(studyTime2);
+    }
+    @AfterEach
+    void tearDown() {
+        studyTime1 = null;
+        studyTime2 = null;
+        studyUser = null;
     }
 
     @Test
@@ -152,12 +159,98 @@ class StudyUserTest {
                 .startTimestamp(LocalDateTime.now().minusMinutes(20))
                 .build();
         StudyTime studyTime3 = new StudyTime();
-        studyTime3.setStartTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50));
+        studyTime3.setStartTimestamp(LocalDateTime.now().minusMinutes(50));
         studyTime3.addStudyRecordWithFocusTime(studyRecord5);
         studyTime3.addStudyRecordWithFocusTime(studyRecord6);
         studyUser.addStudyTime(studyTime3);
         assertEquals(studyTime1.getCalculatedFocusTime()
                 .plus(studyTime2.getCalculatedFocusTime())
                 .plus(studyTime3.getCalculatedFocusTime()), studyUser.getTotalFocusTime());
+    }
+
+    @Test
+    @DisplayName("test isTiming finished time case")
+    void isTimingFinishedTest() {
+        assertFalse(studyUser.isTiming());
+    }
+
+    @Test
+    @DisplayName("test isTiming ongoing time case")
+    void isTimingOngoingTest() {
+        StudyRecord studyRecord5 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(50))
+                .build();
+        studyRecord5.setEndTimestampWithRecordTime(LocalDateTime.now().minusMinutes(30));
+        StudyRecord studyRecord6 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(20))
+                .build();
+        StudyTime studyTime3 = new StudyTime();
+        studyTime3.setStartTimestamp(LocalDateTime.now().minusMinutes(50));
+        studyTime3.addStudyRecordWithFocusTime(studyRecord5);
+        studyTime3.addStudyRecordWithFocusTime(studyRecord6);
+        studyUser.addStudyTime(studyTime3);
+        assertTrue(studyUser.isTiming());
+    }
+
+    @Test
+    @DisplayName("test isTiming ongoing time but not recording case")
+    void isTimingOngoingNotRecordingTest() {
+        StudyRecord studyRecord5 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(50))
+                .build();
+        studyRecord5.setEndTimestampWithRecordTime(LocalDateTime.now().minusMinutes(30));
+        StudyRecord studyRecord6 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(20))
+                .build();
+        studyRecord6.setEndTimestampWithRecordTime(LocalDateTime.now().minusMinutes(10));
+        StudyTime studyTime3 = new StudyTime();
+        studyTime3.setStartTimestamp(LocalDateTime.now().minusMinutes(50));
+        studyTime3.addStudyRecordWithFocusTime(studyRecord5);
+        studyTime3.addStudyRecordWithFocusTime(studyRecord6);
+        studyUser.addStudyTime(studyTime3);
+        assertTrue(studyUser.isTiming());
+    }
+
+    @Test
+    @DisplayName("test isRecording finished time case")
+    void isRecordingFinishedTest() {
+        assertFalse(studyUser.isRecording());
+    }
+
+    @Test
+    @DisplayName("test isRecording ongoing time case")
+    void isRecordingOngoingTest() {
+        StudyRecord studyRecord5 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(50))
+                .build();
+        studyRecord5.setEndTimestampWithRecordTime(LocalDateTime.now().minusMinutes(30));
+        StudyRecord studyRecord6 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(20))
+                .build();
+        StudyTime studyTime3 = new StudyTime();
+        studyTime3.setStartTimestamp(LocalDateTime.now().minusMinutes(50));
+        studyTime3.addStudyRecordWithFocusTime(studyRecord5);
+        studyTime3.addStudyRecordWithFocusTime(studyRecord6);
+        studyUser.addStudyTime(studyTime3);
+        assertTrue(studyUser.isRecording());
+    }
+
+    @Test
+    @DisplayName("test isRecording ongoing time but not recording case")
+    void isRecordingOngoingNotRecordingTest() {
+        StudyRecord studyRecord5 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(50))
+                .build();
+        studyRecord5.setEndTimestampWithRecordTime(LocalDateTime.now().minusMinutes(30));
+        StudyRecord studyRecord6 = StudyRecord.builder()
+                .startTimestamp(LocalDateTime.now().minusMinutes(20))
+                .build();
+        studyRecord6.setEndTimestampWithRecordTime(LocalDateTime.now().minusMinutes(10));
+        StudyTime studyTime3 = new StudyTime();
+        studyTime3.setStartTimestamp(LocalDateTime.now().minusMinutes(50));
+        studyTime3.addStudyRecordWithFocusTime(studyRecord5);
+        studyTime3.addStudyRecordWithFocusTime(studyRecord6);
+        studyUser.addStudyTime(studyTime3);
+        assertFalse(studyUser.isRecording());
     }
 }
