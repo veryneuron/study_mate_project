@@ -1,12 +1,6 @@
-import { MqttClient } from 'mqtt';
 import WebSocket, { Server } from 'ws';
-import {
-  collections,
-  startTestServer,
-  waitForSocketState
-} from './serverTestUtil';
-import ChattingData from '../src/database/chattingData';
-import { MongoClient } from 'mongodb';
+import { startTestServer, waitForSocketState } from './serverTestUtil';
+import connData from '../src/controller/connData';
 
 const port = 8080;
 
@@ -16,20 +10,13 @@ const testToken =
 // userId = 'testaccount';
 
 describe('websocket test', function () {
-  let server: {
-    websocket: Server;
-    mqtt: MqttClient;
-    dbClient: MongoClient;
-  };
-
-  beforeAll(async () => {
-    server = await startTestServer(port);
+  let wss: Server;
+  beforeAll(() => {
+    wss = startTestServer(port);
   });
 
-  afterAll(async () => {
-    server.mqtt.end();
-    server.websocket.close();
-    await server.dbClient.close();
+  afterAll(() => {
+    wss.close();
   });
 
   test('connect test with jwt token', async () => {
@@ -50,9 +37,9 @@ describe('websocket test', function () {
     const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
     await waitForSocketState(wsClient, WebSocket.OPEN);
     wsClient.on('message', (data) => {
-      const receiveData = JSON.parse(data.toString()) as ChattingData;
+      const receiveData = JSON.parse(data.toString()) as connData;
       expect(receiveData.userId).toBe('testaccount');
-      expect(receiveData.type).toBe('connection');
+      expect(receiveData.type).toBe('Connected');
       wsClient.close();
     });
 
@@ -70,9 +57,9 @@ describe('websocket test', function () {
     await waitForSocketState(wsClient2, WebSocket.OPEN);
 
     wsClient.on('message', (data) => {
-      const receiveData = JSON.parse(data.toString()) as ChattingData;
+      const receiveData = JSON.parse(data.toString()) as connData;
       expect(receiveData.userId).toBe('testaccount');
-      expect(receiveData.type).toBe('close');
+      expect(receiveData.type).toBe('Disconnected');
       wsClient.close();
     });
     wsClient2.close();
@@ -81,60 +68,15 @@ describe('websocket test', function () {
     await waitForSocketState(wsClient, WebSocket.CLOSED);
   });
 
-  // test('initialize message test', async () => {
-  //   await collections?.chattingData?.deleteMany({});
-  //   await collections.chattingData?.insertOne(
-  //     new ChattingData(
-  //       'testaccount3',
-  //       'test message3',
-  //       '111.111',
-  //       new Date('2022-08-10T03:24:00.000Z'),
-  //       'message'
-  //     )
-  //   );
-  //   await collections.chattingData?.insertOne(
-  //     new ChattingData(
-  //       'testaccount4',
-  //       'test message4',
-  //       '111.111',
-  //       new Date(),
-  //       'message'
-  //     )
-  //   );
-  //
-  //   const count = await collections.chattingData?.countDocuments();
-  //   expect(count).toBe(2);
-  //
-  //   let flag = false;
-  //   const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
-  //   wsClient.on('message', (data) => {
-  //     console.log(data.toString());
-  //     const receiveMessage = JSON.parse(data.toString()) as ChattingData;
-  //     if (flag === false) {
-  //       expect(receiveMessage.userId).toBe('testaccount3');
-  //       expect(receiveMessage.type).toBe('message');
-  //       flag = true;
-  //     } else {
-  //       expect(receiveMessage.userId).toBe('testaccount4');
-  //       expect(receiveMessage.type).toBe('message');
-  //       wsClient.close();
-  //     }
-  //   });
-  //
-  //   await collections?.chattingData?.deleteMany({});
-  //   await waitForSocketState(wsClient, WebSocket.CLOSED);
-  // });
-
   test('get existing user information test', async () => {
-    await collections?.chattingData?.deleteMany({});
     const wsClient = new WebSocket(`ws://localhost:${port}/${testToken}`);
     await waitForSocketState(wsClient, WebSocket.OPEN);
 
     const wsClient2 = new WebSocket(`ws://localhost:${port}/${testToken}`);
     wsClient2.on('message', (data) => {
-      const receiveData = JSON.parse(data.toString()) as ChattingData;
+      const receiveData = JSON.parse(data.toString()) as connData;
       expect(receiveData.userId).toBe('testaccount');
-      expect(receiveData.type).toBe('connection');
+      expect(receiveData.type).toBe('Connected');
       wsClient2.close();
     });
     await waitForSocketState(wsClient2, WebSocket.CLOSED);

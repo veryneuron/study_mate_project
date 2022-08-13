@@ -1,23 +1,11 @@
 import { WebSocket, WebSocketServer } from 'ws';
-import { connect } from 'mqtt';
 import { init } from '../src/init';
-import { Collection, MongoClient } from 'mongodb';
 
-export const collections: { chattingData?: Collection } = {};
-
-async function startTestServer(port: number) {
-  const dbClient = await MongoClient.connect(
-    `mongodb://${process.env.POSTGRES_ID}:${process.env.POSTGRES_PW}@localhost:27017`
-  );
-  const db = dbClient.db('study_mate_test');
-  collections.chattingData = db.collection('chatting_data');
-
+function startTestServer(port: number) {
   const wss = new WebSocketServer({ port: port });
-  const client = connect('mqtt://localhost:1996');
-  const userMap = new Map<WebSocket, string>();
-  init(wss, client, userMap);
+  init(wss, new Map<WebSocket, string>());
 
-  return { websocket: wss, mqtt: client, dbClient };
+  return wss;
 }
 
 function waitForSocketState(socket: WebSocket, state: number) {

@@ -14,8 +14,6 @@
   "license": "ISC",
   "dependencies": {
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^4.8.1",
-    "mqtt": "^4.3.7",
     "nodemon": "^2.0.15",
     "ws": "^8.8.1"
   },
