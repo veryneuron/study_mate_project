@@ -297,7 +297,7 @@ class StudyServiceTest {
                 .startTimestamp(currentTime.minusMinutes(10))
                 .userId(studyUser_recording.getUserId()).build();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> studyService.addStudyTime(studyDTO));
-        assertEquals("InputEndTimestamp is null", e.getMessage());
+        assertEquals(studyDTO + "Illegal time", e.getMessage());
     }
 
     @Test
@@ -328,7 +328,7 @@ class StudyServiceTest {
                 .startTimestamp(currentTime.minusMinutes(10))
                 .userId(studyUser_timing_notRecording.getUserId()).build();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> studyService.addStudyTime(studyDTO));
-        assertEquals("InputEndTimestamp is null", e.getMessage());
+        assertEquals(studyDTO + "Illegal time", e.getMessage());
     }
 
     @Test
