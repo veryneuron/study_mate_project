@@ -8,13 +8,10 @@ spring:
       connectionTimeout: 10000
       maximumPoolSize: 10
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: validate
     database: postgresql
     open-in-view: false
-    properties:
-        hibernate.format_sql: true
   rabbitmq:
     host: ${POSTGRES_ADDRESS}
     port: 5672
@@ -22,24 +19,30 @@ spring:
     password: ${POSTGRES_PW}
     listener:
       simple:
-        auto-startup: false
+        auto-startup: true
   data:
     mongodb:
       authentication-database: admin
       username: ${POSTGRES_ID}
       password: ${POSTGRES_PW}
-      database: study_mate_test
+      database: study_mate
       host: localhost
       port: 27017
+  security:
+    user:
+      name: ${POSTGRES_ID}
+      password: ${POSTGRES_PW}
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
 server:
   port: 8000
   error:
-    include-message: always
     include-binding-errors: never
     include-stacktrace: never
     include-exception: false
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type: TRACE
+    root: info
 secret-key: ${JWT_SECRET}
