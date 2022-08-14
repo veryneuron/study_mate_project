@@ -1,5 +1,6 @@
 package com.studymate.api.user.entity;
 
+import com.studymate.api.study.dto.UserStatus;
 import com.studymate.api.study.entity.StudyRecord;
 import com.studymate.api.study.entity.StudyTime;
 import lombok.*;
@@ -105,5 +106,9 @@ public class StudyUser {
         } else {
             return false;
         }
+    }
+
+    public UserStatus toUserStatus() {
+        return new UserStatus(userId, isTiming(), isRecording());
     }
 }

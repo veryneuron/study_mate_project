@@ -1,10 +1,13 @@
 package com.studymate.api.study.controller;
 
+import com.studymate.api.study.dto.UserStatusDTO;
 import com.studymate.api.study.service.StudyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -44,18 +47,19 @@ public class StudyController {
         }
     }
 
-    @GetMapping("check")
-    public ResponseEntity<?> checkStudying(@RequestParam String userId) {
+    @GetMapping
+    public ResponseEntity<?> checkUserStatus(@RequestParam List<String> userIds) {
         try {
-            if (userId == null) {
+            if (userIds == null || userIds.isEmpty()) {
                 throw new IllegalArgumentException("Illegal argument");
             }
-            return ResponseEntity.ok(studyService.checkStudying(userId));
+            return ResponseEntity.ok(UserStatusDTO.builder()
+                    .userStatus(studyService.getUserStatus(userIds))
+                    .build());
 
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());
             return ResponseEntity.badRequest().body("Failed to get data - Illegal Argument");
         }
     }
-
 }

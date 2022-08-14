@@ -1,6 +1,7 @@
 package com.studymate.api.study.service;
 
 import com.studymate.api.study.dto.StudyDTO;
+import com.studymate.api.study.dto.UserStatus;
 import com.studymate.api.study.entity.StudyRecord;
 import com.studymate.api.study.entity.StudyTime;
 import com.studymate.api.user.entity.StudyUser;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -101,6 +103,13 @@ public class StudyService {
         } else {
             throw new IllegalArgumentException(studyTimeDto + "Illegal time");
         }
+    }
+
+    public List<UserStatus> getUserStatus(List<String> userIds) {
+        return studyUserRepository.findByUserIdIn(userIds)
+                .stream()
+                .map(StudyUser::toUserStatus)
+                .toList();
     }
 
     private Optional<StudyUser> findStudyUser(String userId) {

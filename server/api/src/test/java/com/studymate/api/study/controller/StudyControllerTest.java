@@ -1,5 +1,8 @@
 package com.studymate.api.study.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.studymate.api.study.dto.UserStatus;
+import com.studymate.api.study.dto.UserStatusDTO;
 import com.studymate.api.study.entity.StudyRecord;
 import com.studymate.api.study.entity.StudyTime;
 import com.studymate.api.study.repository.StudyRecordRepository;
@@ -17,10 +20,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
@@ -44,27 +49,32 @@ class StudyControllerTest {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
-    StudyUserRepository studyUserRepository;
+    private StudyUserRepository studyUserRepository;
     @Autowired
-    StudyTimeRepository studyTimeRepository;
+    private StudyTimeRepository studyTimeRepository;
     @Autowired
-    StudyRecordRepository studyRecordRepository;
+    private StudyRecordRepository studyRecordRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private String accessToken;
     private StudyUser studyUser;
+    private final LocalDateTime currentTime = LocalDateTime.now();
 
     @BeforeEach
     void setUp() {
+        studyUserRepository.deleteAll();
+        studyTimeRepository.deleteAll();
+        studyRecordRepository.deleteAll();
         System.out.println(org.hibernate.Version.getVersionString());
         studyUser = StudyUser.builder()
                 .userId("test").nickname("testnick").userPassword("testpassword").build();
         authService.createUser(studyUser);
         Optional<StudyUser> savedUser = studyUserRepository.findByUserId("test");
         StudyTime studyTime1 = new StudyTime();
-        studyTime1.setStartTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50));
+        studyTime1.setStartTimestamp(currentTime.minusHours(1).minusMinutes(50));
         studyTime1.setUserSerialNumber(savedUser.get().getUserSerialNumber());
         studyTime1.setUserId("test");
         StudyTime studyTime2 = new StudyTime();
-        studyTime2.setStartTimestamp(LocalDateTime.now().minusHours(3).minusMinutes(50));
+        studyTime2.setStartTimestamp(currentTime.minusHours(3).minusMinutes(50));
         studyTime2.setUserSerialNumber(savedUser.get().getUserSerialNumber());
         studyTime2.setUserId("test");
         StudyTime savedStudyTime1 = studyTimeRepository.save(studyTime1);
@@ -72,43 +82,44 @@ class StudyControllerTest {
 
         StudyRecord studyRecord1 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
-                .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50))
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(50))
                 .userId("test")
                 .build();
-        studyRecord1.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(1).minusMinutes(30));
+        studyRecord1.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(30));
         StudyRecord studyRecord2 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
-                .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(20))
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(20))
                 .userId("test")
                 .build();
-        studyRecord2.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(1).minusMinutes(10));
+        studyRecord2.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(10));
         StudyRecord studyRecord3 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
-                .startTimestamp(LocalDateTime.now().minusHours(3).minusMinutes(50))
+                .startTimestamp(currentTime.minusHours(3).minusMinutes(50))
                 .userId("test")
                 .build();
-        studyRecord3.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(3).minusMinutes(30));
+        studyRecord3.setEndTimestampWithRecordTime(currentTime.minusHours(3).minusMinutes(30));
         StudyRecord studyRecord4 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
-                .startTimestamp(LocalDateTime.now().minusHours(3).minusMinutes(20))
+                .startTimestamp(currentTime.minusHours(3).minusMinutes(20))
                 .userId("test")
                 .build();
-        studyRecord4.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(3).minusMinutes(10));
+        studyRecord4.setEndTimestampWithRecordTime(currentTime.minusHours(3).minusMinutes(10));
 
 //        studyRecordRepository.saveAll(List.of(studyRecord1, studyRecord2, studyRecord3, studyRecord4));
         studyTime1.addStudyRecordWithFocusTime(studyRecord1);
         studyTime1.addStudyRecordWithFocusTime(studyRecord2);
-        studyTime1.setEndTimestampWithTotalTime(LocalDateTime.now().minusHours(1).minusMinutes(10));
+        studyTime1.setEndTimestampWithTotalTime(currentTime.minusHours(1).minusMinutes(10));
 
         studyTime2.addStudyRecordWithFocusTime(studyRecord3);
         studyTime2.addStudyRecordWithFocusTime(studyRecord4);
-        studyTime2.setEndTimestampWithTotalTime(LocalDateTime.now().minusHours(3).minusMinutes(20));
+        studyTime2.setEndTimestampWithTotalTime(currentTime.minusHours(3).minusMinutes(20));
 
 //        studyTimeRepository.saveAll(List.of(studyTime1, studyTime2));
         savedUser.get().addStudyTime(studyTime1);
         savedUser.get().addStudyTime(studyTime2);
         studyUserRepository.save(savedUser.get());
 
+        studyUser = savedUser.get();
         accessToken = authService.authenticate(studyUser.getUserId(), "testpassword");
         assertTrue(jwtTokenProvider.validateToken(accessToken));
         assertEquals(2, studyTimeRepository.count());
@@ -225,76 +236,105 @@ class StudyControllerTest {
     }
 
     @Test
-    @DisplayName("test checkStudying not studying case")
-    void checkStudyingNotStudyTest() throws Exception {
-        mockMvc.perform(get("/api/study/check")
+    @DisplayName("test checkUserStatus empty time case")
+    void checkUserStatusEmptyTimeTest() throws Exception {
+        StudyUser emptyUser = StudyUser.builder()
+                .userId("empty").nickname("testnick3").userPassword("testpassword3").build();
+        authService.createUser(emptyUser);
+
+        accessToken = authService.authenticate(emptyUser.getUserId(), "testpassword3");
+        mockMvc.perform(get("/api/study")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", studyUser.getUserId()))
+                        .param("userIds", emptyUser.getUserId()))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content()
-                        .string(containsString("false")));
+                .andExpect(content().json(objectMapper
+                        .writeValueAsString(UserStatusDTO.builder()
+                                .userStatus(List.of(new UserStatus(emptyUser.getUserId(), false, false)))
+                                .build())));
     }
 
     @Test
-    @DisplayName("test checkStudying studying case")
-    void checkStudyingStudyTest() throws Exception {
+    @DisplayName("test checkUserStatus normal case")
+    void checkUserStatusNormalTest() throws Exception {
         StudyUser nowStudying = StudyUser.builder()
                 .userId("test2").nickname("testnick2").userPassword("testpassword2").build();
         authService.createUser(nowStudying);
         Optional<StudyUser> savedUser = studyUserRepository.findByUserId("test2");
         StudyTime studyTime1 = new StudyTime();
-        studyTime1.setStartTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50));
+        studyTime1.setStartTimestamp(currentTime.minusHours(1).minusMinutes(50));
         studyTime1.setUserSerialNumber(savedUser.get().getUserSerialNumber());
         studyTime1.setUserId("test2");
         StudyTime savedStudyTime1 = studyTimeRepository.save(studyTime1);
 
         StudyRecord studyRecord1 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
-                .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(50))
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(50))
                 .userId("test2")
                 .build();
-        studyRecord1.setEndTimestampWithRecordTime(LocalDateTime.now().minusHours(1).minusMinutes(30));
+        studyRecord1.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(30));
         StudyRecord studyRecord2 = StudyRecord.builder()
                 .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
-                .startTimestamp(LocalDateTime.now().minusHours(1).minusMinutes(20))
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(20))
                 .userId("test2")
                 .build();
-
         studyTime1.addStudyRecordWithFocusTime(studyRecord1);
         studyTime1.addStudyRecordWithFocusTime(studyRecord2);
-
         savedUser.get().addStudyTime(studyTime1);
         studyUserRepository.save(savedUser.get());
 
-        accessToken = authService.authenticate(nowStudying.getUserId(), "testpassword2");
-        mockMvc.perform(get("/api/study/check")
-                        .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", nowStudying.getUserId()))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content()
-                        .string(containsString("true")));
-    }
-
-    @Test
-    @DisplayName("test checkStudying empty time case")
-    void checkStudyingEmptyTimeTest() throws Exception {
-        StudyUser nowStudying = StudyUser.builder()
+        StudyUser studyingNotRecording = StudyUser.builder()
                 .userId("test3").nickname("testnick3").userPassword("testpassword3").build();
-        authService.createUser(nowStudying);
+        authService.createUser(studyingNotRecording);
+        Optional<StudyUser> savedNotRecordingUser = studyUserRepository.findByUserId("test3");
+        StudyTime studyTime2 = new StudyTime();
+        studyTime2.setStartTimestamp(currentTime.minusHours(1).minusMinutes(50));
+        studyTime2.setUserSerialNumber(savedNotRecordingUser.get().getUserSerialNumber());
+        studyTime2.setUserId("test3");
+        StudyTime savedStudyTime2 = studyTimeRepository.save(studyTime2);
 
-        accessToken = authService.authenticate(nowStudying.getUserId(), "testpassword3");
-        mockMvc.perform(get("/api/study/check")
+        StudyRecord studyRecord3 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(50))
+                .userId("test3")
+                .build();
+        studyRecord3.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(30));
+        StudyRecord studyRecord4 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(20))
+                .userId("test3")
+                .build();
+        studyRecord4.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(10));
+        studyTime2.addStudyRecordWithFocusTime(studyRecord3);
+        studyTime2.addStudyRecordWithFocusTime(studyRecord4);
+        savedNotRecordingUser.get().addStudyTime(studyTime2);
+        studyUserRepository.save(savedNotRecordingUser.get());
+
+        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("userIds", studyUser.getUserId());
+        params.add("userIds", nowStudying.getUserId());
+        params.add("userIds", studyingNotRecording.getUserId());
+
+        assertEquals(3, studyUserRepository.count());
+        assertEquals(4, studyTimeRepository.count());
+        assertEquals(8, studyRecordRepository.count());
+
+        UserStatusDTO userStatusDTO = new UserStatusDTO(
+                List.of(new UserStatus(studyUser.getUserId(), studyUser.isTiming(), studyUser.isRecording()),
+                new UserStatus(savedUser.get().getUserId(), savedUser.get().isTiming(), savedUser.get().isRecording()),
+                new UserStatus(savedNotRecordingUser.get().getUserId()
+                        , savedNotRecordingUser.get().isTiming()
+                        , savedNotRecordingUser.get().isRecording())));
+
+        accessToken = authService.authenticate(nowStudying.getUserId(), "testpassword2");
+        mockMvc.perform(get("/api/study")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("userId", nowStudying.getUserId()))
+                        .params(params))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .string(containsString("false")));
+                        .json(objectMapper.writeValueAsString(userStatusDTO)));
     }
-
 }
