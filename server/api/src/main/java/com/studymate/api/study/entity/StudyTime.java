@@ -6,7 +6,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.TypeDef;
 import org.springframework.lang.Nullable;
 
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
@@ -31,7 +30,7 @@ public class StudyTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "study_time_sn")
     private Integer studyTimeSerialNumber;
-    @NotNull
+    @Nullable
     @Column(name = "user_sn")
     private Integer userSerialNumber;
     @NotNull

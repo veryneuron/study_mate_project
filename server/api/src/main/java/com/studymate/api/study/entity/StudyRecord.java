@@ -28,7 +28,7 @@ public class StudyRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "study_record_sn")
     private Integer studyRecordSerialNumber;
-    @NotNull
+    @Nullable
     @Column(name = "study_time_sn")
     private Integer studyTimeSerialNumber;
     @NotNull
