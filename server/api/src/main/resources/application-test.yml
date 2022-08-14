@@ -8,13 +8,10 @@ spring:
       connectionTimeout: 10000
       maximumPoolSize: 10
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: validate
     database: postgresql
     open-in-view: false
-    properties:
-        hibernate.format_sql: true
   rabbitmq:
     host: ${POSTGRES_ADDRESS}
     port: 5672

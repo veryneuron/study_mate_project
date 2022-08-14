@@ -8,7 +8,6 @@ spring:
       connectionTimeout: 10000
       maximumPoolSize: 10
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: validate
     database: postgresql
