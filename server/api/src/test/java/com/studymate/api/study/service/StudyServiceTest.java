@@ -206,6 +206,10 @@ class StudyServiceTest {
         assertEquals(12, studyRecordRepository.count());
         assertEquals(3, studyUserRepository.count());
 
+        studyUser = studyUserRepository.findByUserId("test").get();
+        studyUser_recording = studyUserRepository.findByUserId("recordingTest").get();
+        studyUser_timing_notRecording = studyUserRepository.findByUserId("timingTest").get();
+
         assertFalse(studyUser.isTiming());
         assertFalse(studyUser.isRecording());
         assertTrue(studyUser_recording.isTiming());
