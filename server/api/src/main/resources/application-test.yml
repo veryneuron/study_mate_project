@@ -1,11 +1,9 @@
 spring:
-  rabbitmq:
-    listener:
-      simple:
-        auto-startup: false
   data:
     mongodb:
       database: study_mate_test
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate
 server:
   error:
     include-message: always

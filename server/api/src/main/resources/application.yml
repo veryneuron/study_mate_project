@@ -5,7 +5,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${POSTGRES_ID}
     password: ${POSTGRES_PW}
-    url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate
     hikari:
       connectionTimeout: 10000
       maximumPoolSize: 10
@@ -14,11 +13,6 @@ spring:
       ddl-auto: validate
     database: postgresql
     open-in-view: false
-  rabbitmq:
-    host: ${POSTGRES_ADDRESS}
-    port: 5672
-    username: ${POSTGRES_ID}
-    password: ${POSTGRES_PW}
   data:
     mongodb:
       authentication-database: admin

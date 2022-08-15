@@ -45,7 +45,6 @@ dependencies {
     implementation 'software.amazon.awssdk.iotdevicesdk:aws-iot-device-sdk:1.10.1'
     implementation 'software.amazon.awssdk.crt:aws-crt:0.19.0'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
-
 }
 
 tasks.named('test') {

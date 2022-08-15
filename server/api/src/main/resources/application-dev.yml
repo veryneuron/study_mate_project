@@ -2,14 +2,11 @@ spring:
   jpa:
     properties:
       hibernate.format_sql: true
-  rabbitmq:
-    listener:
-      simple:
-        auto-startup: true
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate_test
   data:
     mongodb:
       database: study_mate
-
 server:
   error:
     include-message: always
