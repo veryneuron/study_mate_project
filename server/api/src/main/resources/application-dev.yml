@@ -1,37 +1,16 @@
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    username: ${POSTGRES_ID}
-    password: ${POSTGRES_PW}
-    url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate
-    hikari:
-      connectionTimeout: 10000
-      maximumPoolSize: 10
   jpa:
-    hibernate:
-      ddl-auto: validate
-    database: postgresql
-    open-in-view: false
     properties:
       hibernate.format_sql: true
   rabbitmq:
-    host: ${POSTGRES_ADDRESS}
-    port: 5672
-    username: ${POSTGRES_ID}
-    password: ${POSTGRES_PW}
     listener:
       simple:
         auto-startup: true
   data:
     mongodb:
-      authentication-database: admin
-      username: ${POSTGRES_ID}
-      password: ${POSTGRES_PW}
       database: study_mate
-      host: localhost
-      port: 27017
+
 server:
-  port: 8000
   error:
     include-message: always
     include-binding-errors: never
@@ -41,4 +20,3 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type: TRACE
-secret-key: ${JWT_SECRET}
