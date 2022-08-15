@@ -2,7 +2,6 @@ package com.studymate.api.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studymate.api.queue.MqttPublisher;
 import com.studymate.api.user.entity.StudyUser;
 import com.studymate.api.user.repository.StudyUserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import software.amazon.awssdk.crt.mqtt.MqttClientConnection;
 
 import java.util.Optional;
 
@@ -24,7 +24,7 @@ class RegistrationServiceTest {
     @Mock
     StudyUserRepository studyUserRepository;
     @Mock
-    MqttPublisher mqttPublisher;
+    MqttClientConnection conn;
     StudyUser studyUser;
 
     @BeforeEach
@@ -35,10 +35,10 @@ class RegistrationServiceTest {
         studyUser.setTemperatureSetting(29.12f);
         studyUser.setRasberrypiAddress("123.456.789.0");
 
-        registrationService = new RegistrationService(studyUserRepository, new ObjectMapper(), mqttPublisher);
+        registrationService = new RegistrationService(studyUserRepository, new ObjectMapper(), conn);
 
         assertNotNull(studyUserRepository);
-        assertNotNull(mqttPublisher);
+        assertNotNull(conn);
     }
 
     //findUser
@@ -76,7 +76,7 @@ class RegistrationServiceTest {
         when(studyUserRepository.save(any())).then(i -> i.getArgument(0, StudyUser.class));
         when(studyUserRepository.findByUserId("test")).thenReturn(Optional.of(studyUser));
         StudyUser user = registrationService.setValue(newValue);
-        verify(mqttPublisher, times(1)).sendValueToClient(any(), any());
+        verify(conn, times(1)).publish(any());
         assertAll("user",
                 () -> assertEquals(newValue.getHumiditySetting(), user.getHumiditySetting()),
                 () -> assertEquals(newValue.getTemperatureSetting(), user.getTemperatureSetting()),

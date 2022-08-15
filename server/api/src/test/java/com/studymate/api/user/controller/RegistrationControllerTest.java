@@ -1,28 +1,36 @@
 package com.studymate.api.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.studymate.api.study.entity.StudyRecord;
+import com.studymate.api.study.entity.StudyTime;
+import com.studymate.api.study.repository.StudyRecordRepository;
+import com.studymate.api.study.repository.StudyTimeRepository;
 import com.studymate.api.user.dto.RegistrationDTO;
 import com.studymate.api.user.entity.StudyUser;
 import com.studymate.api.user.jwt.JwtTokenProvider;
+import com.studymate.api.user.repository.StudyUserRepository;
 import com.studymate.api.user.service.AuthService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import software.amazon.awssdk.crt.mqtt.MqttClientConnection;
+import software.amazon.awssdk.crt.mqtt.QualityOfService;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -42,29 +50,81 @@ class RegistrationControllerTest {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    private MqttClientConnection mqttClientConnection;
     @Autowired
-    private RabbitAdmin rabbitAdmin;
+    private StudyUserRepository studyUserRepository;
+    @Autowired
+    private StudyTimeRepository studyTimeRepository;
+    @Autowired
+    private StudyRecordRepository studyRecordRepository;
     private String accessToken;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final LocalDateTime currentTime = LocalDateTime.now();
 
     @BeforeEach
     void setUp() {
-        StudyUser studyUser = new StudyUser();
-        studyUser.setUserId("test");
-        studyUser.setNickname("testnick");
-        studyUser.setUserPassword("testpassword");
-        studyUser.setTemperatureSetting(27.27f);
-        studyUser.setHumiditySetting(67.2f);
-        studyUser.setRasberrypiAddress("123.456.789.102");
+        studyUserRepository.deleteAll();
+        studyTimeRepository.deleteAll();
+        studyRecordRepository.deleteAll();
+        StudyUser studyUser = StudyUser.builder()
+                .userId("test").nickname("testnick").userPassword("testpassword")
+                .temperatureSetting(27.27f).humiditySetting(67.2f).rasberrypiAddress("123.456.789.102").build();
         authService.createUser(studyUser);
-        accessToken = authService.authenticate(studyUser.getUserId(), "testpassword");
-        rabbitAdmin.purgeQueue("settingQueue");
-    }
+        Optional<StudyUser> savedUser = studyUserRepository.findByUserId("test");
+        StudyTime studyTime1 = StudyTime.builder()
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(50))
+                .userSerialNumber(savedUser.get().getUserSerialNumber())
+                .userId(savedUser.get().getUserId())
+                .build();
+        StudyTime studyTime2 = StudyTime.builder()
+                .startTimestamp(currentTime.minusHours(3).minusMinutes(50))
+                .userSerialNumber(savedUser.get().getUserSerialNumber())
+                .userId(savedUser.get().getUserId())
+                .build();
+        StudyTime savedStudyTime1 = studyTimeRepository.save(studyTime1);
+        StudyTime savedStudyTime2 = studyTimeRepository.save(studyTime2);
 
-    @AfterEach
-    void tearDown() {
-        rabbitAdmin.purgeQueue("settingQueue");
+        StudyRecord studyRecord1 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(50))
+                .userId("test")
+                .build();
+        studyRecord1.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(30));
+        StudyRecord studyRecord2 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime1.getStudyTimeSerialNumber())
+                .startTimestamp(currentTime.minusHours(1).minusMinutes(20))
+                .userId("test")
+                .build();
+        studyRecord2.setEndTimestampWithRecordTime(currentTime.minusHours(1).minusMinutes(10));
+        StudyRecord studyRecord3 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
+                .startTimestamp(currentTime.minusHours(3).minusMinutes(50))
+                .userId("test")
+                .build();
+        studyRecord3.setEndTimestampWithRecordTime(currentTime.minusHours(3).minusMinutes(30));
+        StudyRecord studyRecord4 = StudyRecord.builder()
+                .studyTimeSerialNumber(savedStudyTime2.getStudyTimeSerialNumber())
+                .startTimestamp(currentTime.minusHours(3).minusMinutes(20))
+                .userId("test")
+                .build();
+        studyRecord4.setEndTimestampWithRecordTime(currentTime.minusHours(3).minusMinutes(10));
+
+        studyTime1.addStudyRecordWithFocusTime(studyRecord1);
+        studyTime1.addStudyRecordWithFocusTime(studyRecord2);
+        studyTime1.setEndTimestampWithTotalTime(currentTime.minusHours(1).minusMinutes(10));
+
+        studyTime2.addStudyRecordWithFocusTime(studyRecord3);
+        studyTime2.addStudyRecordWithFocusTime(studyRecord4);
+        studyTime2.setEndTimestampWithTotalTime(currentTime.minusHours(3).minusMinutes(20));
+
+        savedUser.get().addStudyTime(studyTime1);
+        savedUser.get().addStudyTime(studyTime2);
+        studyUser = studyUserRepository.save(savedUser.get());
+
+        assertEquals(2, studyTimeRepository.count());
+        assertEquals(4, studyRecordRepository.count());
+
+        accessToken = authService.authenticate(studyUser.getUserId(), "testpassword");
     }
 
     @Test
@@ -122,6 +182,10 @@ class RegistrationControllerTest {
     @Test
     @DisplayName("test setSettingValue normal case")
     void setSettingValueTest() throws Exception {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        mqttClientConnection.subscribe("setting"
+                , QualityOfService.AT_LEAST_ONCE
+                , (mqttMessage -> countDownLatch.countDown()));
         RegistrationDTO user = new RegistrationDTO();
         user.setHumiditySetting(567.987f);
         user.setTemperatureSetting(874.231f);
@@ -132,7 +196,7 @@ class RegistrationControllerTest {
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Successfully set value")));
-        await().atMost(3, TimeUnit.SECONDS).until(() -> rabbitTemplate.receive("settingQueue") != null);
+        await().atMost(3, TimeUnit.SECONDS).until(() -> countDownLatch.getCount() == 0);
     }
 
     @Test

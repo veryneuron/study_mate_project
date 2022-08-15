@@ -34,15 +34,12 @@ class MqttConnectionTest {
             assertEquals("test message", payload);
             countDownLatch.countDown();
         });
-        subscribed.get();
         MqttMessage message = new MqttMessage ("test"
                 , "test message".getBytes(StandardCharsets.UTF_8)
                 , QualityOfService.AT_LEAST_ONCE);
         CompletableFuture<Integer> published = connection.publish(message);
         published.get();
-        await().atMost(1, TimeUnit.SECONDS).until(() -> countDownLatch.getCount() == 0);
-        connection.disconnect().get();
-        connection.close();
+        await().atMost(3, TimeUnit.SECONDS).until(() -> countDownLatch.getCount() == 0);
     }
 
 }

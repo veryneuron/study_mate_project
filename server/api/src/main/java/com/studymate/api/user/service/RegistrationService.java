@@ -2,7 +2,6 @@ package com.studymate.api.user.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.studymate.api.queue.MqttPublisher;
 import com.studymate.api.user.dto.RasberrySettingDTO;
 import com.studymate.api.user.entity.StudyUser;
 import com.studymate.api.user.repository.StudyUserRepository;
@@ -10,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.crt.mqtt.MqttClientConnection;
+import software.amazon.awssdk.crt.mqtt.MqttMessage;
+import software.amazon.awssdk.crt.mqtt.QualityOfService;
 
 import java.util.Optional;
 
@@ -21,7 +23,7 @@ public class RegistrationService {
     private final StudyUserRepository studyUserRepository;
     private final ModelMapper modelMapper = new ModelMapper();
     private final ObjectMapper objectMapper;
-    private final MqttPublisher mqttPublisher;
+    private final MqttClientConnection mqttClientConnection;
 
     public StudyUser findUser(final String userId) {
         Optional<StudyUser> userResult = studyUserRepository.findByUserId(userId);
@@ -46,7 +48,11 @@ public class RegistrationService {
                 oldUserValue.get().setRasberrypiAddress(studyUser.getRasberrypiAddress());
             }
             RasberrySettingDTO rasberrySettingDTO = modelMapper.map(oldUserValue.get(), RasberrySettingDTO.class);
-            mqttPublisher.sendValueToClient("setting", objectMapper.writeValueAsString(rasberrySettingDTO));
+
+            MqttMessage mqttMessage = new MqttMessage("setting"
+                    , objectMapper.writeValueAsBytes(rasberrySettingDTO)
+                    , QualityOfService.AT_LEAST_ONCE);
+            mqttClientConnection.publish(mqttMessage);
             return studyUserRepository.save(oldUserValue.get());
         } else {
             log.info("UserId does not exist");

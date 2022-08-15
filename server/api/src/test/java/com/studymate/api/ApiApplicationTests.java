@@ -15,21 +15,21 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-@SpringBootTest
+//@SpringBootTest
 class ApiApplicationTests {
-    @Autowired
-    private StudyUserRepository studyUserRepository;
-    @Autowired
-    private AuthService authService;
-    @Autowired
-    private StudyTimeRepository studyTimeRepository;
-    @Autowired
-    private StudyRecordRepository studyRecordRepository;
-    private StudyUser studyUser;
-    private final LocalDateTime currentTime = LocalDateTime.now();
+//    @Autowired
+//    private StudyUserRepository studyUserRepository;
+//    @Autowired
+//    private AuthService authService;
+//    @Autowired
+//    private StudyTimeRepository studyTimeRepository;
+//    @Autowired
+//    private StudyRecordRepository studyRecordRepository;
+//    private StudyUser studyUser;
+//    private final LocalDateTime currentTime = LocalDateTime.now();
 
-    @BeforeEach
-    void setUp() {
+//    @BeforeEach
+//    void setUp() {
 //        studyUser = StudyUser.builder()
 //                .userId("test").nickname("testnick").userPassword("testpassword").build();
 //        authService.createUser(studyUser);
@@ -86,23 +86,23 @@ class ApiApplicationTests {
 //
 //        assertEquals(2, studyTimeRepository.count());
 //        assertEquals(4, studyRecordRepository.count());
-    }
+//    }
 
-    @Test
-    @DisplayName("test JPA N+1 issue")
-    @Transactional
-    void contextLoads() {
+//    @Test
+//    @DisplayName("test JPA N+1 issue")
+//    @Transactional
+//    void contextLoads() {
 //        studyUserRepository.deleteAll();
-
-        Optional<StudyUser> studyUser = studyUserRepository.findByUserId("test");
-        studyUser.get().getStudyTimes().get(0).getStudyRecords().forEach(studyRecord -> {
-            System.out.println(studyRecord.getStartTimestamp());
-            System.out.println(studyRecord.getEndTimestamp());
-        } );
-        studyUser.get().getStudyTimes().get(1).getStudyRecords().forEach(studyRecord -> {
-            System.out.println(studyRecord.getStartTimestamp());
-            System.out.println(studyRecord.getEndTimestamp());
-        } );
-    }
+//
+//        Optional<StudyUser> studyUser = studyUserRepository.findByUserId("test");
+//        studyUser.get().getStudyTimes().get(0).getStudyRecords().forEach(studyRecord -> {
+//            System.out.println(studyRecord.getStartTimestamp());
+//            System.out.println(studyRecord.getEndTimestamp());
+//        } );
+//        studyUser.get().getStudyTimes().get(1).getStudyRecords().forEach(studyRecord -> {
+//            System.out.println(studyRecord.getStartTimestamp());
+//            System.out.println(studyRecord.getEndTimestamp());
+//        } );
+//    }
 
 }
