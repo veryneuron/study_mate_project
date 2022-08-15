@@ -24,7 +24,7 @@ public class MeasurementSubscribe {
 
     @PostConstruct
     public void subscribeMeasureData() {
-        conn.subscribe("measure_data", QualityOfService.AT_LEAST_ONCE, (payload) -> {
+        conn.subscribe("measure_data", QualityOfService.AT_MOST_ONCE, (payload) -> {
             try {
                 String message = new String(payload.getPayload(), StandardCharsets.UTF_8);
                 MeasurementData measurementData = objectMapper.readValue(message, MeasurementData.class);

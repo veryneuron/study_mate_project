@@ -23,7 +23,7 @@ public class StudySubscribe {
 
     @PostConstruct
     public void subscribeStudyTime() {
-        conn.subscribe("study_time", QualityOfService.AT_LEAST_ONCE, (payload) -> {
+        conn.subscribe("study_time", QualityOfService.AT_MOST_ONCE, (payload) -> {
             try {
                 String message = new String(payload.getPayload(), StandardCharsets.UTF_8);
                 StudyDTO studyTime = objectMapper.readValue(message, StudyDTO.class);
@@ -39,7 +39,7 @@ public class StudySubscribe {
 
     @PostConstruct
     public void subscribeStudyRecord() {
-        conn.subscribe("study_record", QualityOfService.AT_LEAST_ONCE, (payload) -> {
+        conn.subscribe("study_record", QualityOfService.AT_MOST_ONCE, (payload) -> {
             try {
                 String message = new String(payload.getPayload(), StandardCharsets.UTF_8);
                 StudyDTO studyTime = objectMapper.readValue(message, StudyDTO.class);
