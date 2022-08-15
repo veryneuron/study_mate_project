@@ -10,6 +10,8 @@ import software.amazon.awssdk.crt.mqtt.MqttClientConnection;
 import software.amazon.awssdk.crt.mqtt.MqttClientConnectionEvents;
 import software.amazon.awssdk.iot.AwsIotMqttConnectionBuilder;
 
+import java.util.concurrent.CompletableFuture;
+
 @Slf4j
 @Configuration
 public class MqttConnection {
@@ -51,10 +53,17 @@ public class MqttConnection {
                     .withProtocolOperationTimeoutMs(6000)
                     .build();
             log.info("AWS MQTT Client successfully created");
+
+            CompletableFuture<Boolean> connected = conn.connect();
+            boolean sessionPresent = connected.get();
+            log.info("Connected to " + (!sessionPresent ? "new" : "existing") + " session!");
+
             return conn;
         } catch (CrtRuntimeException ex) {
             log.warn("AWS MQTT Client creation failed");
             return null;
+        } catch (Exception ex) {
+            throw new RuntimeException("Exception occurred during AWS Iot connect", ex);
         }
     }
 
