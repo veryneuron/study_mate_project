@@ -32,7 +32,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/signin")
+    @PostMapping("/signin")
     public ResponseEntity<?> signing(@Valid @RequestBody AuthDTO authDTO) {
         try {
             StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);

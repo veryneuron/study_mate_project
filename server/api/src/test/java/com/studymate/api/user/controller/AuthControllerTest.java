@@ -184,7 +184,7 @@ class AuthControllerTest {
     void signinTest() throws Exception {
         AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
         user.setUserPassword("testpassword");
-        MvcResult result = mockMvc.perform(get("/api/auth/signin")
+        MvcResult result = mockMvc.perform(post("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
@@ -201,7 +201,7 @@ class AuthControllerTest {
         user.setUserId("test1");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
-        mockMvc.perform(get("/api/auth/signin")
+        mockMvc.perform(post("/api/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isBadRequest());
