@@ -6,10 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.studymate.application.ui.login.LoginScreen
+import com.studymate.application.ui.main.MainScreen
 import com.studymate.application.ui.theme.ApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,12 +20,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ApplicationTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    NavigateStudy()
                 }
             }
         }
@@ -30,14 +32,27 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
+fun NavigateStudy() {
     ApplicationTheme {
-        Greeting("Android")
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = "Login",
+        ) {
+            composable("Login") {
+                LoginScreen(onClickLogin = {
+                    navController.navigate("Main") {
+                        popUpTo(0)
+                    }
+                })
+            }
+            composable("Main") {
+                MainScreen(onClickLogout = {
+                    navController.navigate("Login") {
+                        popUpTo(0)
+                    }
+                })
+            }
+        }
     }
 }
