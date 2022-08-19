@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 fun Monitoring(openDrawer: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         MainTopBar(
-            title = "공부 모니터링",
+            title = DrawerScreens.Monitoring.title,
             buttonIcon = Icons.Filled.Menu,
             onButtonClicked = { openDrawer() }
         )

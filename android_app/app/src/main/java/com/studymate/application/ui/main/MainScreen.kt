@@ -6,11 +6,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.studymate.application.model.AuthViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
-    onClickLogout: () -> Unit
+    onClickLogout: () -> Unit,
+    authViewModel: AuthViewModel
 ) {
     val navController = rememberNavController()
     Surface(color = MaterialTheme.colors.background) {
@@ -61,7 +63,22 @@ fun MainScreen(
                         openDrawer = {
                             openDrawer()
                         },
-                        onClickLogout = onClickLogout
+                        onClickLogout = onClickLogout,
+                        authViewModel = authViewModel
+                    )
+                }
+                composable(DrawerScreens.UserMachine.route) {
+                    UserMachine(
+                        openDrawer = {
+                            openDrawer()
+                        }
+                    )
+                }
+                composable(DrawerScreens.StudyTime.route) {
+                    StudyTime(
+                        openDrawer = {
+                            openDrawer()
+                        }
                     )
                 }
             }

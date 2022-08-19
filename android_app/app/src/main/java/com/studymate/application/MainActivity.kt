@@ -1,5 +1,6 @@
 package com.studymate.application
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.studymate.application.ui.login.LoginScreen
+import com.studymate.application.model.AuthViewModel
+import com.studymate.application.ui.auth.LoginScreen
+import com.studymate.application.ui.auth.SignUpScreen
 import com.studymate.application.ui.main.MainScreen
 import com.studymate.application.ui.theme.ApplicationTheme
 
@@ -24,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    NavigateStudy()
+                    NavigateStudy(this)
                 }
             }
         }
@@ -32,26 +35,48 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NavigateStudy() {
+fun NavigateStudy(context: Context) {
     ApplicationTheme {
         val navController = rememberNavController()
+        val authViewModel = AuthViewModel(context)
         NavHost(
             navController = navController,
             startDestination = "Login",
         ) {
             composable("Login") {
-                LoginScreen(onClickLogin = {
-                    navController.navigate("Main") {
-                        popUpTo(0)
-                    }
-                })
+                LoginScreen(
+                    onClickLogin = {
+                        authViewModel.signIn {
+                            navController.navigate("Main") {
+                                popUpTo(0)
+                            }
+                        }
+                    },
+                    onClickSignUp = { navController.navigate("SignUp") },
+                    authInfo = authViewModel.userDataResponse
+                )
             }
             composable("Main") {
-                MainScreen(onClickLogout = {
-                    navController.navigate("Login") {
-                        popUpTo(0)
-                    }
-                })
+                MainScreen(
+                    onClickLogout = {
+                        navController.navigate("Login") {
+                            popUpTo(0)
+                        }
+                    },
+                    authViewModel = authViewModel
+                )
+            }
+            composable("SignUp") {
+                SignUpScreen(
+                    onClickSignUp = {
+                        authViewModel.signUp {
+                            navController.navigate("Login") {
+                                popUpTo(0)
+                            }
+                        }
+                    },
+                    authInfo = authViewModel.userDataResponse
+                )
             }
         }
     }

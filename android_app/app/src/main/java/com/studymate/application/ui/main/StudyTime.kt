@@ -3,7 +3,6 @@ package com.studymate.application.ui.main
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -12,10 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun Measurement(openDrawer: () -> Unit) {
+fun StudyTime(openDrawer: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         MainTopBar(
-            title = DrawerScreens.Measurement.title,
+            title = DrawerScreens.StudyTime.title,
             buttonIcon = Icons.Filled.Menu,
             onButtonClicked = { openDrawer() }
         )
@@ -24,7 +23,7 @@ fun Measurement(openDrawer: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "온도 및 습도 화면.", style = MaterialTheme.typography.h4)
+            Text(text = "사용자 공부 시간 확인 화면")
         }
     }
 }

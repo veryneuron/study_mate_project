@@ -11,13 +11,17 @@ import androidx.compose.ui.unit.dp
 sealed class DrawerScreens(val title: String, val route: String) {
     object Monitoring : DrawerScreens("공부 모니터링", "Monitoring")
     object Measurement : DrawerScreens("온도 및 습도 확인", "Measurement")
-    object UserProfile : DrawerScreens("사용자 정보 확인", "UserProfile")
+    object UserProfile : DrawerScreens("사용자 정보 수정", "UserProfile")
+    object UserMachine : DrawerScreens("사용자 기기 수정", "UserMachine")
+    object StudyTime : DrawerScreens("공부 시간 확인", "StudyTime")
 }
 
 private val screens = listOf(
     DrawerScreens.Monitoring,
     DrawerScreens.Measurement,
-    DrawerScreens.UserProfile
+    DrawerScreens.UserProfile,
+    DrawerScreens.UserMachine,
+    DrawerScreens.StudyTime
 )
 
 @Composable
