@@ -1,4 +1,4 @@
-package com.studymate.application.ui.auth
+package com.studymate.application.service
 
 import android.content.Context
 import okhttp3.Interceptor

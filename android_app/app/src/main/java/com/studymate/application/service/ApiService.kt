@@ -6,13 +6,11 @@ import com.studymate.application.data.AuthDTO
 import com.studymate.application.data.MeasurementData
 import com.studymate.application.data.RegistrationDTO
 import com.studymate.application.data.UserStatusDTO
-import com.studymate.application.ui.auth.AuthInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.*
-import java.time.Duration
 
 interface ApiService {
     @POST("/api/auth/signup")
@@ -40,7 +38,7 @@ interface ApiService {
     @GET("/api/study/{time}/{focus}")
     suspend fun retrieveStudyTime(@Path("time") time: String
                           ,@Path("focus") focus: String
-                          ,@Query("userId") userId : String): Duration
+                          ,@Query("userId") userId : String): String
 
     @GET("/api/study")
     suspend fun checkUserStatus(@Query("userIds") userIds: List<String>): UserStatusDTO
@@ -51,7 +49,7 @@ interface ApiService {
     companion object {
         var apiService: ApiService? = null
         fun getInstance(context: Context): ApiService {
-            val gson = GsonBuilder().setLenient().create()
+            val gson = GsonBuilder().create()
             if (apiService == null) {
                 apiService = Retrofit.Builder()
                     .baseUrl("http://192.168.56.1:8000")

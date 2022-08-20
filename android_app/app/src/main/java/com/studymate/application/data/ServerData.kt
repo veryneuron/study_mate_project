@@ -1,7 +1,5 @@
 package com.studymate.application.data
 
-import java.time.LocalDateTime
-
 
 data class AuthDTO(
     var userId : String,
@@ -28,7 +26,7 @@ data class UserStatus(
 data class MeasurementData(
     var temperature : Float,
     var humidity : Float,
-    var timestamp: LocalDateTime,
+    var timestamp: String,
     var rasberrypiAddress: String,
     var userId: String,
 )

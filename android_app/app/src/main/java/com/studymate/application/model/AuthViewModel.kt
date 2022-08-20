@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.studymate.application.data.AuthDTO
 import com.studymate.application.service.ApiService
-import com.studymate.application.ui.auth.SessionManager
+import com.studymate.application.service.SessionManager
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
