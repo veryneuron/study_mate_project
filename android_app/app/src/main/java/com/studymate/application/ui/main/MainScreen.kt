@@ -78,7 +78,8 @@ fun MainScreen(
                     StudyTime(
                         openDrawer = {
                             openDrawer()
-                        }
+                        },
+                        authViewModel.userDataResponse.userId
                     )
                 }
             }
