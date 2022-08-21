@@ -6,7 +6,7 @@ spring:
     url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate_test
   data:
     mongodb:
-      database: study_mate
+      database: study_mate_test
 server:
   error:
     include-message: always

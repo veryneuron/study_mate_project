@@ -20,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class StudyService {
     private final StudyUserRepository studyUserRepository;
+    @Transactional
     public Duration calculateCurrentFocusStudyTime(String userId) {
         Optional<StudyUser> studyUser = findStudyUser(userId);
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
@@ -105,6 +106,7 @@ public class StudyService {
         }
     }
 
+    @Transactional
     public List<UserStatus> getUserStatus(List<String> userIds) {
         return studyUserRepository.findByUserIdIn(userIds)
                 .stream()

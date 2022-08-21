@@ -262,29 +262,22 @@ class AuthControllerTest {
     @Test
     @DisplayName("test deleting normal case")
     void deletingTest() throws Exception {
-        AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
-        user.setUserPassword("testpassword");
         mockMvc.perform(delete("/api/auth")
                         .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(user)))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Successfully deleted")));
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.findUser(user.getUserId()));
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> authService.findUser("test"));
         assertEquals("UserId does not exist", error.getMessage());
     }
 
-    @Test
-    @DisplayName("test deleting error case")
-    void deletingErrorTest() throws Exception {
-        AuthDTO user = new AuthDTO();
-        user.setNickname("testnick");
-        user.setUserPassword("testpassword");
-        mockMvc.perform(delete("/api/auth")
-                        .header("Authorization", "Bearer " + accessToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(user)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to delete - Illegal Argument")));
-    }
+//    @Test
+//    @DisplayName("test deleting error case")
+//    void deletingErrorTest() throws Exception {
+//        mockMvc.perform(delete("/api/auth")
+//                        .header("Authorization", "Bearer " + accessToken)
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(content().string(containsString("Failed to delete - Illegal Argument")));
+//    }
 }

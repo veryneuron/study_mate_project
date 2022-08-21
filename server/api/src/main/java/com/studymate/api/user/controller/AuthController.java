@@ -40,7 +40,7 @@ public class AuthController {
             return ResponseEntity.ok().body(jwtToken);
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body(authDTO);
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
@@ -72,10 +72,9 @@ public class AuthController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleting(@Valid @RequestBody AuthDTO authDTO) {
+    public ResponseEntity<?> deleting(@AuthenticationPrincipal String userId) {
         try {
-            StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
-            authService.deleteUser(studyUser.getUserId());
+            authService.deleteUser(userId);
             return ResponseEntity.ok("Successfully deleted");
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());

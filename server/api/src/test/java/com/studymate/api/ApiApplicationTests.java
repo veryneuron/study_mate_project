@@ -1,5 +1,9 @@
 package com.studymate.api;
 
+import com.studymate.api.measurement.model.MeasurementData;
+import com.studymate.api.measurement.repository.MeasurementDataRepository;
+import com.studymate.api.study.entity.StudyRecord;
+import com.studymate.api.study.entity.StudyTime;
 import com.studymate.api.study.repository.StudyRecordRepository;
 import com.studymate.api.study.repository.StudyTimeRepository;
 import com.studymate.api.user.entity.StudyUser;
@@ -15,8 +19,10 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 //@SpringBootTest
-class ApiApplicationTests {
+//class ApiApplicationTests {
 //    @Autowired
 //    private StudyUserRepository studyUserRepository;
 //    @Autowired
@@ -27,9 +33,12 @@ class ApiApplicationTests {
 //    private StudyRecordRepository studyRecordRepository;
 //    private StudyUser studyUser;
 //    private final LocalDateTime currentTime = LocalDateTime.now();
+//    @Autowired
+//    private MeasurementDataRepository measurementDataRepository;
 
 //    @BeforeEach
 //    void setUp() {
+//        studyUserRepository.deleteAll();
 //        studyUser = StudyUser.builder()
 //                .userId("test").nickname("testnick").userPassword("testpassword").build();
 //        authService.createUser(studyUser);
@@ -89,6 +98,83 @@ class ApiApplicationTests {
 //    }
 
 //    @Test
+//    void mockUser() {
+//        MeasurementData measurementData = MeasurementData.builder()
+//                .temperature(30.5f)
+//                .humidity(70.12f)
+//                .timestamp(LocalDateTime.now().minusMinutes(10))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData2 = MeasurementData.builder()
+//                .temperature(31.6f)
+//                .humidity(71.10f)
+//                .timestamp(LocalDateTime.now().minusMinutes(9))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData3 = MeasurementData.builder()
+//                .temperature(32.5f)
+//                .humidity(75.12f)
+//                .timestamp(LocalDateTime.now().minusMinutes(8))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData4 = MeasurementData.builder()
+//                .temperature(25.6f)
+//                .humidity(82.10f)
+//                .timestamp(LocalDateTime.now().minusMinutes(7))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData5 = MeasurementData.builder()
+//                .temperature(37.5f)
+//                .humidity(75.12f)
+//                .timestamp(LocalDateTime.now().minusMinutes(6))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData6 = MeasurementData.builder()
+//                .temperature(35.6f)
+//                .humidity(72.10f)
+//                .timestamp(LocalDateTime.now().minusMinutes(5))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData7 = MeasurementData.builder()
+//                .temperature(37.5f)
+//                .humidity(75.12f)
+//                .timestamp(LocalDateTime.now().minusMinutes(4))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData8 = MeasurementData.builder()
+//                .temperature(21.6f)
+//                .humidity(87.10f)
+//                .timestamp(LocalDateTime.now().minusMinutes(3))
+//                .raspberrypiAddress("123.456.789.102")
+//                .userId("test")
+//                .build();
+//        MeasurementData measurementData9 = MeasurementData.builder()
+//                .temperature(41.2f)
+//                .humidity(72.11f)
+//                .timestamp(LocalDateTime.now())
+//                .raspberrypiAddress("123.456.789.103")
+//                .userId("test10")
+//                .build();
+//        measurementDataRepository.save(measurementData);
+//        measurementDataRepository.save(measurementData2);
+//        measurementDataRepository.save(measurementData3);
+//        measurementDataRepository.save(measurementData4);
+//        measurementDataRepository.save(measurementData5);
+//        measurementDataRepository.save(measurementData6);
+//        measurementDataRepository.save(measurementData7);
+//        measurementDataRepository.save(measurementData8);
+//        measurementDataRepository.save(measurementData9);
+//    }
+//}
+
+//    @Test
 //    @DisplayName("test JPA N+1 issue")
 //    @Transactional
 //    void contextLoads() {
@@ -104,5 +190,3 @@ class ApiApplicationTests {
 //            System.out.println(studyRecord.getEndTimestamp());
 //        } );
 //    }
-
-}
