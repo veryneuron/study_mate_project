@@ -30,3 +30,8 @@ data class MeasurementData(
     var rasberrypiAddress: String,
     var userId: String,
 )
+
+data class ConnData(
+    var userId: String,
+    var type : String,
+)

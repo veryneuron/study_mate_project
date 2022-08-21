@@ -48,7 +48,9 @@ fun MainScreen(
                     Monitoring(
                         openDrawer = {
                             openDrawer()
-                        }
+                        },
+                        authViewModel.sessionManager.fetchAuthToken(),
+                        authViewModel.userDataResponse.userId
                     )
                 }
                 composable(DrawerScreens.Measurement.route) {
