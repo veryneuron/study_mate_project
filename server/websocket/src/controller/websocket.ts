@@ -9,7 +9,9 @@ export function middleWebsocket(
   wss.on('connection', function (ws, req) {
     try {
       const token = verify(
-        req.url?.substring(1) ?? '',
+        decodeURI(<string>req.url?.substring(1))
+          .replace('{', '')
+          .replace('}', '') ?? '',
         process.env.JWT_SECRET ?? ''
       );
       console.log(`User connected: ${token.sub}`);
