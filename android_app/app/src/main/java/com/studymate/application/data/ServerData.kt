@@ -10,7 +10,7 @@ data class AuthDTO(
 data class RegistrationDTO(
     var temperatureSetting : Float,
     var humiditySetting : Float,
-    var rasberrypiAddress : String,
+    var rasberrypiAddress : String?,
 )
 
 data class UserStatusDTO(

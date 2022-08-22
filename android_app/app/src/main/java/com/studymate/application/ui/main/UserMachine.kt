@@ -31,7 +31,7 @@ fun UserMachine(openDrawer: () -> Unit) {
             val response = apiService.getSettingValue()
             machineSetting.humiditySetting = response.humiditySetting.toString()
             machineSetting.temperatureSetting = response.temperatureSetting.toString()
-            machineSetting.rasberrypiAddress = response.rasberrypiAddress
+            machineSetting.rasberrypiAddress = response.rasberrypiAddress ?: ""
         } catch (e: Exception) {
             Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         }
