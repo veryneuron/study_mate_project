@@ -9,5 +9,5 @@ export function init(
   userMap: Map<WebSocket, string>
 ) {
   middleWebsocket(wss, userMap);
-  middleMqtt(connection);
+  middleMqtt(connection, userMap);
 }
