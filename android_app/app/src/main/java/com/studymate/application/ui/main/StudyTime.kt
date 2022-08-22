@@ -20,51 +20,35 @@ fun StudyTime(
     userId: String
 ) {
     val context = LocalContext.current
+    val apiService = ApiService.getInstance(context)
     var currentFocusTime by remember { mutableStateOf("PT0S") }
     var currentNonFocusTime by remember { mutableStateOf("PT0S") }
     var totalFocusTime by remember { mutableStateOf("PT0S") }
     var totalNonFocusTime by remember { mutableStateOf("PT0S") }
 
-    LaunchedEffect(currentFocusTime) {
+    LaunchedEffect(true) {
         try {
-            val response = ApiService.apiService?.retrieveStudyTime("current", "focus", userId)
-            if (response != null) {
-                currentFocusTime = response
-            }
+            val currentFocus =
+                apiService.retrieveStudyTime("current", "focus", userId)
+            val currentNonFocus =
+                apiService.retrieveStudyTime(
+                    "current",
+                    "non-focus",
+                    userId
+                )
+            val totalFocus =
+                apiService.retrieveStudyTime("total", "focus", userId)
+            val totalNonFocus =
+                apiService.retrieveStudyTime("total", "non-focus", userId)
+            currentFocusTime = currentFocus
+            currentNonFocusTime = currentNonFocus
+            totalFocusTime = totalFocus
+            totalNonFocusTime = totalNonFocus
         } catch (e: Exception) {
             Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         }
     }
-    LaunchedEffect(currentNonFocusTime) {
-        try {
-            val response = ApiService.apiService?.retrieveStudyTime("current", "non-focus", userId)
-            if (response != null) {
-                currentNonFocusTime = response
-            }
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-        }
-    }
-    LaunchedEffect(totalFocusTime) {
-        try {
-            val response = ApiService.apiService?.retrieveStudyTime("total", "focus", userId)
-            if (response != null) {
-                totalFocusTime = response
-            }
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-        }
-    }
-    LaunchedEffect(totalNonFocusTime) {
-        try {
-            val response = ApiService.apiService?.retrieveStudyTime("total", "non-focus", userId)
-            if (response != null) {
-                totalNonFocusTime = response
-            }
-        } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-        }
-    }
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         MainTopBar(
@@ -73,7 +57,9 @@ fun StudyTime(
             onButtonClicked = { openDrawer() }
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = "현재 집중 시간", style = MaterialTheme.typography.body1)
