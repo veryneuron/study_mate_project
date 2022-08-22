@@ -30,6 +30,7 @@ public class StudyService {
             return resultTime.get().getCalculatedFocusTime();
         }
     }
+    @Transactional
     public Duration calculateCurrentNonFocusStudyTime(String userId) {
         Optional<StudyUser> studyUser = findStudyUser(userId);
         Optional<StudyTime> resultTime = studyUser.get().getLatestStudyTime();
@@ -40,11 +41,13 @@ public class StudyService {
         }
     }
 
+    @Transactional
     public Duration calculateTotalFocusStudyTime(String userId) {
         Optional<StudyUser> studyUser = findStudyUser(userId);
         return studyUser.get().getTotalFocusTime();
     }
 
+    @Transactional
     public Duration calculateTotalNonFocusStudyTime(String userId) {
         Optional<StudyUser> studyUser = findStudyUser(userId);
         return studyUser.get().getTotalStudyTime();
