@@ -12,40 +12,25 @@ export function middleMqtt(
 ) {
   (async () => {
     await connection.subscribe(
-      'study_time',
+      '#',
       mqtt.QoS.AtMostOnce,
       (topic: string, payload: ArrayBuffer) => {
-        console.log(`study_time received ${payload.toString()}`);
-        try {
-          const message = JSON.parse(decoder.decode(payload)) as mqttData;
-          userMap.forEach((value, key) => {
-            if (value === message.userId) {
-              key.send(new connData(message.userId, 'StudyTime'));
-            }
-          });
-        } catch (err) {
-          console.log(err);
+        if (topic === 'study_time' || topic === 'study_record') {
+          console.log(`${topic} received ${decoder.decode(payload)}`);
+          const type = topic === 'study_time' ? 'StudyTime' : 'StudyRecord';
+          try {
+            const message = JSON.parse(decoder.decode(payload)) as mqttData;
+            userMap.forEach((value, key) => {
+              if (value === message.userId) {
+                key.send(JSON.stringify(new connData(message.userId, type)));
+              }
+            });
+          } catch (err) {
+            console.log(err);
+          }
         }
       }
     );
-    console.log('Subscribed to study_time');
-    await connection.subscribe(
-      'study_record',
-      mqtt.QoS.AtMostOnce,
-      (topic: string, payload: ArrayBuffer) => {
-        console.log(`study_record received ${payload.toString()}`);
-        try {
-          const message = JSON.parse(decoder.decode(payload)) as mqttData;
-          userMap.forEach((value, key) => {
-            if (value === message.userId) {
-              key.send(new connData(message.userId, 'StudyRecord'));
-            }
-          });
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    );
-    console.log('Subscribed to study_record');
+    console.log('Subscribed to AWS IoT');
   })();
 }

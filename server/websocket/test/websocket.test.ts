@@ -1,6 +1,7 @@
 import WebSocket, { Server } from 'ws';
 import { startTestServer, waitForSocketState } from './serverTestUtil';
 import connData from '../src/controller/connData';
+import { mqtt } from 'aws-iot-device-sdk-v2';
 
 const port = 8080;
 
@@ -11,12 +12,14 @@ const testToken =
 
 describe('websocket test', function () {
   let wss: Server;
-  beforeAll(() => {
-    wss = startTestServer(port);
+  let connection: mqtt.MqttClientConnection;
+  beforeAll(async () => {
+    [wss, connection] = await startTestServer(port);
   });
 
   afterAll(() => {
     wss.close();
+    connection.disconnect();
   });
 
   test('connect test with jwt token', async () => {

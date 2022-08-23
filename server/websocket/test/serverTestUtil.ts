@@ -1,11 +1,15 @@
 import { WebSocket, WebSocketServer } from 'ws';
 import { init } from '../src/init';
+import { build_connection } from '../src/AWSConnection';
 
-function startTestServer(port: number) {
+async function startTestServer(port: number) {
   const wss = new WebSocketServer({ port: port });
-  init(wss, new Map<WebSocket, string>());
+  const connection = build_connection();
+  await connection.connect();
+  console.log('AWS Iot connected!');
+  init(wss, connection, new Map<WebSocket, string>());
 
-  return wss;
+  return [wss, connection] as const;
 }
 
 function waitForSocketState(socket: WebSocket, state: number) {
