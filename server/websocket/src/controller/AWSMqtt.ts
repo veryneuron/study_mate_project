@@ -21,9 +21,7 @@ export function middleMqtt(
           try {
             const message = JSON.parse(decoder.decode(payload)) as mqttData;
             userMap.forEach((value, key) => {
-              if (value === message.userId) {
-                key.send(JSON.stringify(new connData(message.userId, type)));
-              }
+              key.send(JSON.stringify(new connData(message.userId, type)));
             });
           } catch (err) {
             console.log(err);
