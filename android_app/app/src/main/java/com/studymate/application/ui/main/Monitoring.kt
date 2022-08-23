@@ -33,19 +33,30 @@ fun Monitoring(openDrawer: () -> Unit, token: String?, userId: String) {
     val viewModel = remember {WebSocketViewModel(context, token!!)}
 
     LaunchedEffect(viewModel) {
+        var currentTime = Duration.ZERO
+        var currentRecord = Duration.ZERO
         try {
             val currentUserStatus = apiService.checkUserStatus(listOf(userId))
-            val currentTime =
-                apiService.retrieveStudyTime("current", "non-focus", userId).replace("\"", "")
-            val currentRecord =
-                apiService.retrieveStudyTime("current", "focus", userId).replace("\"", "")
+            if (currentUserStatus.userStatus[0].isTiming) {
+                currentTime =
+                    Duration.parse(
+                        apiService.retrieveStudyTime("current", "non-focus", userId)
+                            .replace("\"", "")
+                    )
+            }
+            if (currentUserStatus.userStatus[0].isRecording) {
+                currentRecord =
+                    Duration.parse(
+                        apiService.retrieveStudyTime("current", "focus", userId).replace("\"", "")
+                    )
+            }
             viewModel.userStateList.add(
                 UserState(
                     userId,
                     currentUserStatus.userStatus[0].isTiming,
                     currentUserStatus.userStatus[0].isRecording,
-                    Duration.parse(currentTime),
-                    Duration.parse(currentRecord)
+                    currentTime,
+                    currentRecord,
                 )
             )
         } catch (e: Exception) {

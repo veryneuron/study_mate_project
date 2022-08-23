@@ -71,17 +71,36 @@ class WebSocketViewModel(context: Context, token: String) : ViewModel() {
         when (data.type) {
             "Connected" -> {
                 viewModelScope.launch {
+                    var studyTime = Duration.ZERO
+                    var studyRecord = Duration.ZERO
                     val status = apiService.checkUserStatus(listOf(data.userId)).userStatus
-                    val studyTime =
-                        apiService.retrieveStudyTime("current", "non-focus", data.userId).replace("\"", "")
-                    val studyRecord = apiService.retrieveStudyTime("current", "focus", data.userId).replace("\"", "")
+                    if (status[0].isTiming) {
+                        studyTime =
+                            Duration.parse(
+                                apiService.retrieveStudyTime(
+                                    "current",
+                                    "non-focus",
+                                    data.userId
+                                ).replace("\"", "")
+                            )
+                    }
+                    if (status[0].isRecording) {
+                        studyRecord =
+                            Duration.parse(
+                                apiService.retrieveStudyTime(
+                                    "current",
+                                    "focus",
+                                    data.userId
+                                ).replace("\"", "")
+                            )
+                    }
                     userStateList.add(
                         UserState(
                             data.userId,
                             status[0].isTiming,
                             status[0].isRecording,
-                            Duration.parse(studyTime),
-                            Duration.parse(studyRecord)
+                            studyTime,
+                            studyRecord,
                         )
                     )
                 }
@@ -93,14 +112,15 @@ class WebSocketViewModel(context: Context, token: String) : ViewModel() {
                 throw Exception("Unauthorized")
             }
             "StudyTime" -> {
-                if (userStateList.find { it.userId == data.userId }?.isStudying == true
-                    && userStateList.find { it.userId == data.userId }?.isRecording == true
-                ) {
-                    userStateList.find { it.userId == data.userId }?.isRecording =
-                        !userStateList.find { it.userId == data.userId }?.isRecording!!
+                val nowStudying = userStateList.find { it.userId == data.userId }?.isStudying
+                val nowRecording = userStateList.find { it.userId == data.userId }?.isRecording
+                if (nowStudying == true && nowRecording == true) {
+                    userStateList.find { it.userId == data.userId }?.isRecording = false
                 }
-                userStateList.find { it.userId == data.userId }?.isStudying =
-                    !userStateList.find { it.userId == data.userId }?.isStudying!!
+                if (nowStudying == false && nowRecording == false) {
+                    userStateList.find { it.userId == data.userId }?.isRecording = true
+                }
+                userStateList.find { it.userId == data.userId }?.isStudying = !nowStudying!!
             }
             "StudyRecord" -> {
                 userStateList.find { it.userId == data.userId }?.isRecording =
