@@ -93,10 +93,18 @@ class WebSocketViewModel(context: Context, token: String) : ViewModel() {
                 throw Exception("Unauthorized")
             }
             "StudyTime" -> {
-                userStateList.find { it.userId == data.userId }?.isStudying = !userStateList.find { it.userId == data.userId }?.isStudying!!
+                if (userStateList.find { it.userId == data.userId }?.isStudying == true
+                    && userStateList.find { it.userId == data.userId }?.isRecording == true
+                ) {
+                    userStateList.find { it.userId == data.userId }?.isRecording =
+                        !userStateList.find { it.userId == data.userId }?.isRecording!!
+                }
+                userStateList.find { it.userId == data.userId }?.isStudying =
+                    !userStateList.find { it.userId == data.userId }?.isStudying!!
             }
             "StudyRecord" -> {
-                userStateList.find { it.userId == data.userId }?.isRecording = !userStateList.find { it.userId == data.userId }?.isRecording!!
+                userStateList.find { it.userId == data.userId }?.isRecording =
+                    !userStateList.find { it.userId == data.userId }?.isRecording!!
             }
         }
 
