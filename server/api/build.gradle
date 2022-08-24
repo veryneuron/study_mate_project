@@ -50,3 +50,7 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootJar {
+    archiveFileName = 'studymate-api.jar'
+}

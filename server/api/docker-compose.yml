@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  api:
+    depends_on:
+      - postgresql
+      - mongodb
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_CERT_AUTH_PATH
+      - AWS_CERT_PATH
+      - AWS_CLIENT_ID
+      - AWS_ENDPOINT
+      - AWS_KEY_PATH
+      - JWT_SECRET
+      - MONGODB_ADDRESS=mongodb
+      - POSTGRES_ADDRESS=postgresql
+      - POSTGRES_ID
+      - POSTGRES_PW
+  postgresql:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_ID}
+      - POSTGRES_PASSWORD=${POSTGRES_PW}
+      - POSTGRES_DB=study_mate
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGODB_INITDB_ROOT_USERNAME=admin
+      - MONGODB_INITDB_ROOT_PASSWORD=0000
+      - MONGODB_INITDB_DATABASE=study_mate
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro

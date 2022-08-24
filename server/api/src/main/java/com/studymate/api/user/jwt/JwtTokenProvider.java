@@ -38,7 +38,7 @@ public class JwtTokenProvider {
 
     public String createToken(String identifier) {
 
-        long validityInMilliseconds = 1000 * 60 * 60;
+        long validityInMilliseconds = 1000 * 60 * 60 * 24; // 1 day
         Date expiryDate = Date.from(Instant.now().plusMillis(validityInMilliseconds));
         log.info("token created: {}", identifier);
         return Jwts.builder()

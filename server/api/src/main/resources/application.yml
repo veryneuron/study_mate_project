@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   datasource:
     driver-class-name: org.postgresql.Driver
     username: ${POSTGRES_ID}
@@ -10,7 +10,7 @@ spring:
       maximumPoolSize: 10
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     database: postgresql
     open-in-view: false
   data:
@@ -18,7 +18,7 @@ spring:
       authentication-database: admin
       username: ${POSTGRES_ID}
       password: ${POSTGRES_PW}
-      host: localhost
+      host: ${MONGODB_ADDRESS}
       port: 27017
 server:
   port: 8000
