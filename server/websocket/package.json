@@ -4,6 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "start": "node build/server.js",
+    "build": "tsc",
     "dev": "nodemon",
     "lint": "eslint . --ext .ts",
     "test": "jest --detectOpenHandles --forceExit",
