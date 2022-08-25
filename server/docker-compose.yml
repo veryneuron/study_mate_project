@@ -4,7 +4,7 @@ services:
     depends_on:
       - postgresql
       - mongodb
-    build: .
+    build: api
     ports:
       - "8000:8000"
     environment:
@@ -27,7 +27,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PW}
       - POSTGRES_DB=study_mate
   mongodb:
-    image: mongo:latest
+    image: mongo:focal
     ports:
       - "27017:27017"
     environment:
@@ -35,4 +35,15 @@ services:
       - MONGODB_INITDB_ROOT_PASSWORD=0000
       - MONGODB_INITDB_DATABASE=study_mate
     volumes:
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./api/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  websocket:
+    build: websocket
+    ports:
+      - "8080:8080"
+    environment:
+      - WS_AWS_CERT_AUTH_PATH
+      - WS_AWS_CERT_PATH
+      - WS_AWS_CLIENT_ID
+      - AWS_ENDPOINT
+      - WS_AWS_KEY_PATH
+      - JWT_SECRET
