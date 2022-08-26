@@ -9,10 +9,11 @@ services:
       - ./default.conf:/etc/nginx/conf.d/default.conf
       - ./cert:/etc/nginx/cert
   api:
+    image: eutrocee/study-mate-api
+    build: api
     depends_on:
       - postgresql
       - mongodb
-    build: api
     ports:
       - "8000:8000"
     environment:
@@ -45,8 +46,9 @@ services:
       - MONGODB_INITDB_ROOT_PASSWORD=0000
       - MONGODB_INITDB_DATABASE=study_mate
     volumes:
-      - ./api/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
   websocket:
+    image: eutrocee/study-mate-websocket
     build: websocket
     ports:
       - "8080:8080"
