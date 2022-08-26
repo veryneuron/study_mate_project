@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests().antMatchers("/api/auth/signup", "/api/auth/signin").permitAll()
+                .authorizeRequests().antMatchers("/auth/signup", "/auth/signin").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtTokenFilter, ExceptionTranslationFilter.class);

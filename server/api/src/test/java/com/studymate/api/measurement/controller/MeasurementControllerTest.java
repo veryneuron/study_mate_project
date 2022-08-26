@@ -153,7 +153,7 @@ class MeasurementControllerTest {
     @Test
     @DisplayName("test without valid accessToken")
     void withoutTokenTest() throws Exception {
-        mockMvc.perform(get("/api/measurement")
+        mockMvc.perform(get("/measurement")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -162,7 +162,7 @@ class MeasurementControllerTest {
     @Test
     @DisplayName("test retrieveMeasureData normal case")
     void retrieveMeasureData() throws Exception {
-        mockMvc.perform(get("/api/measurement")
+        mockMvc.perform(get("/measurement")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -173,7 +173,7 @@ class MeasurementControllerTest {
     @DisplayName("test retrieveMeasureData error case")
     void retrieveMeasureDataErrorTest() throws Exception {
         String errorToken = jwtTokenProvider.createToken("test1");
-        mockMvc.perform(get("/api/measurement")
+        mockMvc.perform(get("/measurement")
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())

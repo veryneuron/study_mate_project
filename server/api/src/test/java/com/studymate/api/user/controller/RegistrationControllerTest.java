@@ -130,7 +130,7 @@ class RegistrationControllerTest {
     @Test
     @DisplayName("test without valid accessToken")
     void withoutTokenTest() throws Exception {
-        mockMvc.perform(get("/api/registration")
+        mockMvc.perform(get("/registration")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -142,7 +142,7 @@ class RegistrationControllerTest {
         user.setHumiditySetting(1234.123456789f);
         user.setTemperatureSetting(12345.123456789f);
         user.setRasberrypiAddress("123.456.789.1011.1213.1415.1617.1819.2020.2222.2424.2626.2828.3030.3232.3434.3636.3838.4040.4242.4444.46");
-        mockMvc.perform(put("/api/registration")
+        mockMvc.perform(put("/registration")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user))
@@ -159,7 +159,7 @@ class RegistrationControllerTest {
     @Test
     @DisplayName("test getSettingValue normal case")
     void getSettingValueTest() throws Exception {
-        mockMvc.perform(get("/api/registration")
+        mockMvc.perform(get("/registration")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -170,7 +170,7 @@ class RegistrationControllerTest {
     @DisplayName("test getSettingValue error case")
     void getSettingValueErrorTest() throws Exception {
         String errorToken = jwtTokenProvider.createToken("test1");
-        mockMvc.perform(get("/api/registration")
+        mockMvc.perform(get("/registration")
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -190,7 +190,7 @@ class RegistrationControllerTest {
         user.setHumiditySetting(567.987f);
         user.setTemperatureSetting(874.231f);
         user.setRasberrypiAddress("000.000.000.000");
-        mockMvc.perform(put("/api/registration")
+        mockMvc.perform(put("/registration")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
@@ -207,7 +207,7 @@ class RegistrationControllerTest {
         user.setHumiditySetting(567.987f);
         user.setTemperatureSetting(874.231f);
         user.setRasberrypiAddress("000.000.000.000");
-        mockMvc.perform(put("/api/registration")
+        mockMvc.perform(put("/registration")
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))

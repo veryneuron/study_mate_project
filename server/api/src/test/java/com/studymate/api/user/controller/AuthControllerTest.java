@@ -127,7 +127,7 @@ class AuthControllerTest {
         user.setUserId("test");
         user.setNickname("updatednick");
         user.setUserPassword("updatedpw");
-        mockMvc.perform(put("/api/auth")
+        mockMvc.perform(put("/auth")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isForbidden());
@@ -140,7 +140,7 @@ class AuthControllerTest {
         user.setUserId("012345678901234567890123456789");
         user.setNickname("012345678901234567890123456789");
         user.setUserPassword("012345678901234567890123456789");
-        mockMvc.perform(post("/api/auth/signup")
+        mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user))
                         .accept(MediaType.APPLICATION_JSON))
@@ -158,7 +158,7 @@ class AuthControllerTest {
         user.setUserId("newtest");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
-        mockMvc.perform(post("/api/auth/signup")
+        mockMvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
@@ -173,7 +173,7 @@ class AuthControllerTest {
         user.setUserId("test");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
-        mockMvc.perform(post("/api/auth/signup")
+        mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isBadRequest());
@@ -184,7 +184,7 @@ class AuthControllerTest {
     void signinTest() throws Exception {
         AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
         user.setUserPassword("testpassword");
-        MvcResult result = mockMvc.perform(post("/api/auth/signin")
+        MvcResult result = mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
@@ -201,7 +201,7 @@ class AuthControllerTest {
         user.setUserId("test1");
         user.setNickname("newnick");
         user.setUserPassword("newpw");
-        mockMvc.perform(post("/api/auth/signin")
+        mockMvc.perform(post("/auth/signin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isBadRequest());
@@ -210,7 +210,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test findUserData normal case")
     void getUserDataTest() throws Exception {
-        mockMvc.perform(get("/api/auth")
+        mockMvc.perform(get("/auth")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -221,7 +221,7 @@ class AuthControllerTest {
     @DisplayName("test findUserData error case")
     void getUserDataErrorTest() throws Exception {
         String errorToken = jwtTokenProvider.createToken("test1");
-        mockMvc.perform(get("/api/auth")
+        mockMvc.perform(get("/auth")
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -234,7 +234,7 @@ class AuthControllerTest {
         studyUser.setNickname("updatednick");
         studyUser.setUserPassword("updatedpw");
         AuthDTO user = modelMapper.map(studyUser, AuthDTO.class);
-        mockMvc.perform(put("/api/auth")
+        mockMvc.perform(put("/auth")
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(user)))
@@ -251,7 +251,7 @@ class AuthControllerTest {
         newUser.setNickname("anothernick");
         newUser.setUserPassword("anotherpw");
         AuthDTO user = modelMapper.map(newUser, AuthDTO.class);
-        mockMvc.perform(put("/api/auth")
+        mockMvc.perform(put("/auth")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
@@ -262,7 +262,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("test deleting normal case")
     void deletingTest() throws Exception {
-        mockMvc.perform(delete("/api/auth")
+        mockMvc.perform(delete("/auth")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

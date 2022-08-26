@@ -129,7 +129,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test without valid accessToken")
     void withoutTokenTest() throws Exception {
-        mockMvc.perform(get("/api/study/current/focus")
+        mockMvc.perform(get("/study/current/focus")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -137,7 +137,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus parameter error case")
     void retrieveStudyTimeCurrentFocusParameterTest() throws Exception {
-        mockMvc.perform(get("/api/study/current/focus")
+        mockMvc.perform(get("/study/current/focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -146,7 +146,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus path error case")
     void retrieveStudyTimeCurrentFocusPathTest() throws Exception {
-        mockMvc.perform(get("/api/study/error/error")
+        mockMvc.perform(get("/study/error/error")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", studyUser.getUserId()))
@@ -160,7 +160,7 @@ class StudyControllerTest {
         StudyUser emptyUser = StudyUser.builder()
                 .userId("emptytest").nickname("emptynick").userPassword("emptypassword").build();
         authService.createUser(emptyUser);
-        mockMvc.perform(get("/api/study/current/focus")
+        mockMvc.perform(get("/study/current/focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", emptyUser.getUserId()))
@@ -171,7 +171,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus not existing user case")
     void retrieveStudyTimeCurrentFocusNotExistingUserTest() throws Exception {
-        mockMvc.perform(get("/api/study/current/focus")
+        mockMvc.perform(get("/study/current/focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", "notexistinguser"))
@@ -182,7 +182,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus current/focus case")
     void retrieveStudyTimeCurrentFocusTest() throws Exception {
-        mockMvc.perform(get("/api/study/current/focus")
+        mockMvc.perform(get("/study/current/focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", studyUser.getUserId()))
@@ -197,7 +197,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus current/non-focus case")
     void retrieveStudyTimeCurrentNonFocusTest() throws Exception {
-        mockMvc.perform(get("/api/study/current/non-focus")
+        mockMvc.perform(get("/study/current/non-focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", studyUser.getUserId()))
@@ -212,7 +212,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus total/focus case")
     void retrieveStudyTimeTotalFocusTest() throws Exception {
-        mockMvc.perform(get("/api/study/total/focus")
+        mockMvc.perform(get("/study/total/focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", studyUser.getUserId()))
@@ -225,7 +225,7 @@ class StudyControllerTest {
     @Test
     @DisplayName("test retrieveCurrentFocus total/non-focus case")
     void retrieveStudyTimeTotalNonFocusTest() throws Exception {
-        mockMvc.perform(get("/api/study/total/non-focus")
+        mockMvc.perform(get("/study/total/non-focus")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", studyUser.getUserId()))
@@ -243,7 +243,7 @@ class StudyControllerTest {
         authService.createUser(emptyUser);
 
         accessToken = authService.authenticate(emptyUser.getUserId(), "testpassword3");
-        mockMvc.perform(get("/api/study")
+        mockMvc.perform(get("/study")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userIds", emptyUser.getUserId()))
@@ -328,7 +328,7 @@ class StudyControllerTest {
                         , savedNotRecordingUser.get().isRecording())));
 
         accessToken = authService.authenticate(nowStudying.getUserId(), "testpassword2");
-        mockMvc.perform(get("/api/study")
+        mockMvc.perform(get("/study")
                         .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .params(params))
