@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/measurement")
+@RequestMapping("/measurement")
 @RequiredArgsConstructor
 public class MeasurementController {
     private final MeasurementDataRepository measurementDataRepository;

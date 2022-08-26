@@ -15,7 +15,7 @@ import javax.validation.Valid;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/registration")
+@RequestMapping("/registration")
 @AllArgsConstructor
 public class RegistrationController {
 

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/study")
+@RequestMapping("/study")
 @RequiredArgsConstructor
 public class StudyController {
     private final StudyService studyService;
