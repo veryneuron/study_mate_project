@@ -17,10 +17,10 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
 interface ApiService {
-    @POST("/api/auth/signup")
+    @POST("/api/auth")
     suspend fun signup(@Body authDTO: AuthDTO): String
 
-    @POST("/api/auth/signin")
+    @POST("/api/auth/token")
     suspend fun signin(@Body authDTO: AuthDTO): String
 
     @GET("/api/auth")
