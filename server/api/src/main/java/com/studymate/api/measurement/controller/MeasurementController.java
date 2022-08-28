@@ -21,19 +21,14 @@ public class MeasurementController {
 
     @GetMapping
     public ResponseEntity<?> retrieveMeasureData(@AuthenticationPrincipal String userId) {
-        try {
-            if (userId == null) {
-                throw new IllegalArgumentException("Illegal argument");
-            }
-            List<MeasurementData> data = measurementDataRepository.findByUserIdOrderByTimestampDesc(userId);
-            if (data.size() > 0) {
-                return ResponseEntity.ok(data);
-            } else {
-                throw new IllegalArgumentException("No data exists");
-            }
-        } catch (IllegalArgumentException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body("Failed to get data - Illegal Argument");
+        if (userId == null) {
+            throw new IllegalArgumentException("Illegal argument");
+        }
+        List<MeasurementData> data = measurementDataRepository.findByUserIdOrderByTimestampDesc(userId);
+        if (data.size() > 0) {
+            return ResponseEntity.ok(data);
+        } else {
+            throw new IllegalArgumentException("No data exists");
         }
     }
 }

@@ -177,6 +177,6 @@ class MeasurementControllerTest {
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to get data - Illegal Argument")));
+                .andExpect(content().string(containsString("No data exists")));
     }
 }

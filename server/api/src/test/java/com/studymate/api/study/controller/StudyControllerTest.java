@@ -151,7 +151,7 @@ class StudyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", studyUser.getUserId()))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to get data - Illegal Argument")));
+                .andExpect(content().string(containsString("Illegal argument")));
     }
 
     @Test
@@ -176,7 +176,7 @@ class StudyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("userId", "notexistinguser"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to get data - Illegal Argument")));
+                .andExpect(content().string(containsString("UserId does not exist")));
     }
 
     @Test

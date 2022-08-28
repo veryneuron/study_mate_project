@@ -174,7 +174,7 @@ class RegistrationControllerTest {
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to get data - Illegal Argument")));
+                .andExpect(content().string(containsString("UserId does not exist")));
     }
 
     //setSettingValue
@@ -212,7 +212,7 @@ class RegistrationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to set value - Illegal Argument")));
+                .andExpect(content().string(containsString("UserId does not exist")));
     }
 
 }

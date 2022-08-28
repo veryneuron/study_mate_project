@@ -21,65 +21,40 @@ public class AuthController {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@Valid @RequestBody AuthDTO authDTO) {
-        try {
-            StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
-            authService.createUser(studyUser);
-            return ResponseEntity.ok("Successfully signed up");
-        } catch (IllegalArgumentException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body(authDTO);
-        }
+    public ResponseEntity<String> signup(@Valid @RequestBody AuthDTO authDTO) {
+        StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
+        authService.createUser(studyUser);
+        return ResponseEntity.ok("Successfully signed up");
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> signing(@Valid @RequestBody AuthDTO authDTO) {
-        try {
-            StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
-            String jwtToken = authService.authenticate(studyUser.getUserId(), studyUser.getUserPassword());
-            return ResponseEntity.ok().body(jwtToken);
-        } catch (IllegalArgumentException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body(null);
-        }
+    public ResponseEntity<String> signing(@Valid @RequestBody AuthDTO authDTO) {
+        StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
+        String jwtToken = authService.authenticate(studyUser.getUserId(), studyUser.getUserPassword());
+        return ResponseEntity.ok().body(jwtToken);
     }
 
     @GetMapping
-    public ResponseEntity<?> getUserData(@AuthenticationPrincipal String userId) {
-        try {
-            if (userId == null) {
-                throw new IllegalArgumentException("Illegal argument");
-            }
-            StudyUser studyUser = authService.findUser(userId);
-            AuthDTO authDTO = modelMapper.map(studyUser, AuthDTO.class);
-            return ResponseEntity.ok().body(authDTO);
-        } catch (IllegalArgumentException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body("Failed to get data - Illegal Argument");
+    public ResponseEntity<AuthDTO> getUserData(@AuthenticationPrincipal String userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("Illegal argument");
         }
+        StudyUser studyUser = authService.findUser(userId);
+        AuthDTO authDTO = modelMapper.map(studyUser, AuthDTO.class);
+        return ResponseEntity.ok().body(authDTO);
     }
 
     @PutMapping
-    public ResponseEntity<?> editing(@Valid @RequestBody AuthDTO authDTO) {
-        try {
-            StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
-            authService.editUser(studyUser);
-            return ResponseEntity.ok("Successfully edited");
-        } catch (IllegalArgumentException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body("Failed to edit - Illegal Argument");
-        }
+    public ResponseEntity<String> editing(@Valid @RequestBody AuthDTO authDTO) {
+        StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
+        authService.editUser(studyUser);
+        return ResponseEntity.ok("Successfully edited");
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleting(@AuthenticationPrincipal String userId) {
-        try {
-            authService.deleteUser(userId);
-            return ResponseEntity.ok("Successfully deleted");
-        } catch (IllegalArgumentException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.badRequest().body("Failed to delete - Illegal Argument");
-        }
+    public ResponseEntity<String> deleting(@AuthenticationPrincipal String userId) {
+        authService.deleteUser(userId);
+        return ResponseEntity.ok("Successfully deleted");
     }
 
 }

@@ -225,7 +225,7 @@ class AuthControllerTest {
                         .header("Authorization", "Bearer " + errorToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to get data - Illegal Argument")));
+                .andExpect(content().string(containsString("UserId does not exist")));
     }
 
     @Test
@@ -256,7 +256,7 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(user)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Failed to edit - Illegal Argument")));
+                .andExpect(content().string(containsString("UserId does not exist")));
     }
 
     @Test
