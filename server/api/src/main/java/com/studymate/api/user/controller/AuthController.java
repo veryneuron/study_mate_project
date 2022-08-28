@@ -20,14 +20,14 @@ public class AuthController {
     private AuthService authService;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @PostMapping("/signup")
+    @PostMapping
     public ResponseEntity<String> signup(@Valid @RequestBody AuthDTO authDTO) {
         StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
         authService.createUser(studyUser);
         return ResponseEntity.ok("Successfully signed up");
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/token")
     public ResponseEntity<String> signing(@Valid @RequestBody AuthDTO authDTO) {
         StudyUser studyUser = modelMapper.map(authDTO, StudyUser.class);
         String jwtToken = authService.authenticate(studyUser.getUserId(), studyUser.getUserPassword());
