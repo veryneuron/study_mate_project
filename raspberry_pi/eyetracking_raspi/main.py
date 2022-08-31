@@ -1,4 +1,4 @@
-import paho.mqtt.client as mqtt
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import drivers
 import threading
 import time
@@ -133,6 +133,23 @@ ser = serial.Serial(port, baudrate=brate, timeout=None)
 serial_thread = threading.Thread(target=get_serial_line, args=(ser,))
 serial_thread.start()
 
+#수정
+myMQTTClient = AWSIoTMQTTClient("piID")
+myMQTTClient.configureEndpoint("a8qp9iz9gi35h-ats.iot.us-east-1.amazonaws.com", 8883)
+myMQTTClient.configureCredentials("/Users/lsy/Documents/untitled folder/certs/RootCA.pem",
+                                  "/Users/lsy/Documents/untitled folder/certs/private.pem.key",
+                                  "/Users/lsy/Documents/untitled folder/certs/certificate.pem.crt")
+myMQTTClient.configureOfflinePublishQueueing(-1)
+myMQTTClient.configureDrainingFrequency(2)
+myMQTTClient.configureConnectDisconnectTimeout(10)
+myMQTTClient.configureMQTTOperationTimeout(5)
+print("initializing IoT Core Topic...")
+
+##mqtt연결
+mqttc = mqtt.Client("laptop")
+mqttc.connect("172.20.10.9", 1883)
+##mqtt 상태 초기화
+mqttc.subscribe("#", 1, )
 
 #client1 <- RasberrySettingDTO
 client1 = mqtt.Client("server")
