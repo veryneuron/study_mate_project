@@ -50,19 +50,19 @@ fun UserMachine(openDrawer: () -> Unit) {
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = "라즈베리파이 설정")
 
-            Spacer(modifier = Modifier.height(20.dp))
-            TextField(
-                label = { Text(text = "온도") },
-                value = machineSetting.temperatureSetting,
-                onValueChange = { machineSetting.temperatureSetting = it },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-
-            Spacer(modifier = Modifier.height(20.dp))
-            TextField(
-                label = { Text(text = "습도") },
-                value = machineSetting.humiditySetting,
-                onValueChange = { machineSetting.humiditySetting = it },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+//            Spacer(modifier = Modifier.height(20.dp))
+//            TextField(
+//                label = { Text(text = "온도") },
+//                value = machineSetting.temperatureSetting,
+//                onValueChange = { machineSetting.temperatureSetting = it },
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+//
+//            Spacer(modifier = Modifier.height(20.dp))
+//            TextField(
+//                label = { Text(text = "습도") },
+//                value = machineSetting.humiditySetting,
+//                onValueChange = { machineSetting.humiditySetting = it },
+//                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
 
             Spacer(modifier = Modifier.height(20.dp))
             TextField(
