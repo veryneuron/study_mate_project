@@ -1,9 +1,9 @@
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import cv2
 import numpy as np
 import dlib
 from scipy.spatial import distance
 import time
-import paho.mqtt.client as mqtt
 import threading
 
 global count_left
@@ -16,23 +16,13 @@ global count_right
 global avg_sclera_left
 global avg_sclera_right
 
-def sub_message(client):
-    rc = 0
-    while rc == 0:
-        rc = client.loop()
-
-def on_message(client, userdata, message):
-    print("Topic : ", message.topic)
-    print("message received", str(message.payload.decode("utf-8")))
-
-#메시지 전송
-def msg_send(mqttc, topic, msg):
-    mqttc.publish(topic, msg)
+def send_msg(client, topic, msg):
+    client.publish(topic, msg, 1)
 
 #눈동자 마스킹
 def eye_position(shape, gray, left, right):
     #threshold 값
-    thresh_value = 100
+    thresh_value = 80
 
     #동공 마스킹
     mask = np.zeros(gray.shape[:2], dtype=np.uint8)
@@ -67,7 +57,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
         area_right = cv2.contourArea(cnt_right)
 
         if right:
-            if area_left > 50 and area_right > 50 and count_right < 10:
+            if area_left > 40 and area_right > 40 and count_right < 10:
                 count_right += 1
                 avg_sclera_left[1] += int(area_left)
                 avg_sclera_right[1] += int(area_right)
@@ -79,7 +69,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
                 print("right done")
         elif right == False:
-            if area_left > 45 and area_right > 45 and count_left < 10:
+            if area_left > 35 and area_right > 35 and count_left < 10:
                 count_left += 1
                 avg_sclera_left[0] += int(area_left)
                 avg_sclera_right[0] += int(area_right)
@@ -221,17 +211,23 @@ def main():
     base_length = 0
 
     ##mqtt연결
-    mqttc = mqtt.Client("laptop")
-    mqttc.connect("172.20.10.9", 1883)
-    mqttc.subscribe("status/#")
-    mqttc.on_message = on_message
-    ##mqtt 상태 초기화
-    msg_send(mqttc, "status/focused", "False")
+    myMQTTClient = AWSIoTMQTTClient("pi_compute")
+    myMQTTClient.configureEndpoint("a27cn38pezif4g-ats.iot.ap-northeast-1.amazonaws.com", 8883)
+    myMQTTClient.configureCredentials("/Users/lsy/Documents/untitled folder/aws_certificate/cert/RootCA.cer",
+                                      "/Users/lsy/Documents/untitled folder/aws_certificate/cert/private.pem.key",
+                                      "/Users/lsy/Documents/untitled folder/aws_certificate/cert/certificate.pem.crt")
 
-    thread_recv = threading.Thread(target=sub_message, args=(mqttc,))
-    thread_recv.start()
+    myMQTTClient.configureOfflinePublishQueueing(-1)
+    myMQTTClient.configureDrainingFrequency(2)
+    myMQTTClient.configureConnectDisconnectTimeout(10)
+    myMQTTClient.configureMQTTOperationTimeout(5)
+    print("initializing IoT Core Topic...")
 
-    cap = cv2.VideoCapture('rtsp://172.20.10.9:8556/unicast')
+    myMQTTClient.connect()
+
+    time.sleep(2)
+
+    cap = cv2.VideoCapture('rtsp://172.20.10.9:8555/unicast')
 
     while True:
         _, frame = cap.read()
@@ -314,10 +310,8 @@ def main():
                         print("start time : " + str(start_time))
                         count_uncon = 0
                         count_con = 0
-                        # 아두이노로 시작 신호 전송
-                        # 서버로 시작 신호 전송
-                        # 라즈베리파이로 시작 신호 전송
-                        msg_send(mqttc, "status/unfocused", "True")
+                        # 라즈베리파이로 집중x 신호 전송
+                        send_msg(myMQTTClient, "status/focused", "False")
 
                     elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
                         end_time = int(time.time())
@@ -326,10 +320,10 @@ def main():
                         print("time : " + str(end_time - start_time))
                         start_time = 0
                         end_time = 0
-                        # 아두이노로 종료 신호 전송
                         # 서버로 종료 신호 전송
                         # 라즈베리파이로 종료 신호 전송
-                        msg_send(mqttc, "status/unfocused", "False")
+                        send_msg(myMQTTClient, "status/focused", "True")
+
 
                 temp = 0
                 cv2.imshow("thresh", _thresh)
@@ -345,8 +339,6 @@ def main():
             count_uncon = 0
             count_con = 0
             print("start time : " + str(start_time))
-            msg_send(mqttc, "status/unfocused", "True")
-
 
         face_count = 0
 
