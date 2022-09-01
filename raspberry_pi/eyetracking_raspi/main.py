@@ -1,72 +1,190 @@
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+
+"""
 import drivers
+"""
+import netifaces as ni
 import threading
 import time
 import serial
 import json
+import socket
+import datetime
 
-#lcd
+# mqtt
+global status_focused
+status_focused = False
+
+# json
+global userId
+global temperatureSetting
+global humiditySetting
+global raspberrypiAddress
+global startTimestamp
+global endTimestamp
+
+startTimestamp = None
+endTimestamp = None
+
+userId = None
+temperatureSetting = None
+humiditySetting = None
+
+raspberrypiAddress = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
+
+# arduino
+global status_start
+global temper
+global humi
+global is_received
+status_start = False
+temper = 0
+humi = 0
+is_received = False
+
+global serial_status
+serial_status = False
+
+# lcd
+"""
 display = drivers.Lcd()
+"""
 studying_time = 0
 temp = 0
 hour = 0
 min = 0
 sec = 0
 
-#mqtt
-global status_focused
-status_focused = False
-
-#json
-global userId
-global temperatureSetting
-global humiditySetting
-global raspberrypiAddress
-userId = ""
-temperatureSetting = ""
-humiditySetting = ""
-raspberrypiAddress = ""
-
-#arduino
-global status_start
-global temp
-global humi
-status_start = False
-temp = 0
-humi = 0
-
 UPDATE_TIME = 60
 
-def get_serial_line(ser):
+
+def callback(self, params, packet):
+    global raspberrypiAddress
+    global userId
+    global startTimestamp
+    global endTimestamp
+
+    topic = str(packet.topic)
+
+    if topic == "setting":
+
+        dict = json.loads(packet.payload)
+
+        tempAddress = dict['rasberrypiAddress']
+        print(dict)
+
+        if tempAddress == raspberrypiAddress:
+            userId = dict['userId']
+
+    elif topic == "status/focused":
+
+        # focus -> unfocus
+        if str(packet.payload) == False:
+
+            endTimestamp = datetime.datime.now().replace(microsecond=0).isoformat()
+
+            json_obj = {
+                'userId': userId,
+                'startTimestamp': None,
+                'endTimestamp': endTimestamp
+            }
+
+            json_string = json.dumps(json_obj)
+
+            client.publish("study_record", json_string, 1)
+
+            serial_status = False
+
+
+        elif str(packet.payload) == True:
+
+            startTimestamp = datetime.datime.now().replace(microsecond=0).isoformat()
+
+            json_obj = {
+                'userId': userId,
+                'startTimestamp': startTimestamp,
+                'endTimestamp': None
+            }
+
+            json_string = json.dumps(json_obj)
+
+            client.publish("study_record", json_string, 1)
+
+            serial_status = False
+
+
+def get_serial_line(ser, client):
     global status_start
-    global temp
+    global temper
     global humi
+    global serial_status
+    global is_received
 
     while True:
         if ser.in_waiting != 0:
             content = ser.readline()
-            # receive string from arduino
-            line = content[:-2].decode()
+            try:
+                line = content[:-1].decode()
+            except:
+                print('error')
+                pass
 
+            print("line : " + str(line))
+            # print("is_received :" + str(is_received))
             # unfocused
-            if line == '0':
+            if line == '1':
                 status_start = False
 
+                if is_received == True:
+                    is_received = False
+
+                    print("is_received set false")
+
+                    endTimestamp = datetime.datime.now().replace(microsecond=0).isoformat()
+
+                    json_obj = {
+                        'userId': userId,
+                        'startTimestamp': None,
+                        'endTimestamp': endTimestamp
+                    }
+
+                    json_string = json.dumps(json_obj)
+
+                    client.publish("study_time", json_string, 1)
+
+
             # focused
-            elif line == '1':
+            elif line == '0':
                 status_start = True
 
-            # temp
-            elif line == '2':
-                while ser.int_waiting == 0:
-                    pass
-                temp = int(line)
+                if is_received == False:
+                    is_received = True
 
-            # humi
-            elif line == '3':
-                while ser.int_waiting == 0:
-                    pass
-                humi = int(line)
+                    startTimestamp = datetime.datetime.now().replace(microsecond=0).isoformat()
+
+                    json_obj = {
+                        'userId': userId,
+                        'startTimestamp': startTimestamp,
+                        'endTimestamp': None
+                    }
+
+                    json_string = json.dumps(json_obj)
+
+                    client.publish("study_time", json_string, 1)
+
+
+            # temp
+            else:
+                if line[0:4] == 'temp':
+                    data = line[4:9]
+                    print("temp: " + data)
+                    temper = float(data)
+
+                elif line[0:4] == 'humi':
+                    data = line[4:9]
+                    print("humi: " + data)
+                    humi = float(data)
+                    serial_status = True
 
 
 def get_setting_info(json_data):
@@ -78,50 +196,52 @@ def get_setting_info(json_data):
     dict = json_data.loads(json_data)
 
     userId = dict['userId']
-    temperatureSetting = dict['temperatureSetting']
-    humiditySetting = dict['humiditySetting']
-    raspberrypiAddress = dict['raspberrypiAddress']
+    raspberrypiAddress = dict['rasberrypiAddress']
 
-def set_setting_info():
+
+def set_setting_info(client):
     global userId
     global temperatureSetting
     global humiditySetting
     global raspberrypiAddress
+    global temper
+    global humi
+    global serial_status
 
-    json_obj = {
-        'userId' : "" + userId,
-        'temperatureSetting' : "" + temperatureSetting,
-        'humiditySetting' : "" + humiditySetting,
-        'raspberrypiAddress' : "" + raspberrypiAddress
-    }
+    while True:
 
-    json_string = json.dumps(json_obj)
+        if serial_status == True:
+            temperatureSetting = str(temper)
+            humiditySetting = str(humi)
 
-    return json_string
+            json_obj = {
+                'userId': userId,
+                'temperatureSetting': temperatureSetting,
+                'humiditySetting': humiditySetting,
+                'rasberrypiAddress': raspberrypiAddress
+            }
+
+            json_string = json.dumps(json_obj)
+
+            client.publish("measure_data", json_string, 1)
+
+            serial_status = False
 
 
-def pub_message(client, topic, msg):
-    client.publish(topic, msg)
+# 수정
+myMQTTClient = AWSIoTMQTTClient("pi")
+myMQTTClient.configureEndpoint("a27cn38pezif4g-ats.iot.ap-northeast-1.amazonaws.com", 8883)
+myMQTTClient.configureCredentials("/home/pi/aws_certificate/RootCA.cer",
+                                  "/home/pi/aws_certificate/private.pem.key",
+                                  "/home/pi/aws_certificate/certificate.pem.crt")
+myMQTTClient.configureOfflinePublishQueueing(-1)
+myMQTTClient.configureDrainingFrequency(2)
+myMQTTClient.configureConnectDisconnectTimeout(10)
+myMQTTClient.configureMQTTOperationTimeout(5)
+print("initializing IoT Core Topic...")
+myMQTTClient.connect()
 
-def sub_message(client):
-    rc = 0
-    while rc == 0:
-        rc = client.loop()
-
-#receive json object from mqtt server
-def on_message_server(client, userdata, message):
-    recv_data = str(message.payload.decode("utf-8"))
-    get_setting_info(recv_data)
-
-def on_message_pi(client, userdata, message):
-    global status_focused
-
-    recv_data = str(message.payload.decode("utf-8"))
-    if recv_data == "unfocused":
-        status_focused = False
-    else:
-        status_focused = True
-
+myMQTTClient.subscribe("#", 1, callback)
 
 # arduino serial setting
 port = '/dev/ttyACM0'
@@ -129,22 +249,11 @@ brate = 9600
 
 ser = serial.Serial(port, baudrate=brate, timeout=None)
 
-#arduino serial communication
-serial_thread = threading.Thread(target=get_serial_line, args=(ser,))
+# arduino serial communication
+serial_thread = threading.Thread(target=get_serial_line, args=(ser, myMQTTClient,))
 serial_thread.start()
 
-#수정
-myMQTTClient = AWSIoTMQTTClient("piID")
-myMQTTClient.configureEndpoint("a8qp9iz9gi35h-ats.iot.us-east-1.amazonaws.com", 8883)
-myMQTTClient.configureCredentials("/Users/lsy/Documents/untitled folder/certs/RootCA.pem",
-                                  "/Users/lsy/Documents/untitled folder/certs/private.pem.key",
-                                  "/Users/lsy/Documents/untitled folder/certs/certificate.pem.crt")
-myMQTTClient.configureOfflinePublishQueueing(-1)
-myMQTTClient.configureDrainingFrequency(2)
-myMQTTClient.configureConnectDisconnectTimeout(10)
-myMQTTClient.configureMQTTOperationTimeout(5)
-print("initializing IoT Core Topic...")
-
+"""
 ##mqtt연결
 mqttc = mqtt.Client("laptop")
 mqttc.connect("172.20.10.9", 1883)
@@ -168,18 +277,18 @@ client2.on_message = on_message_pi
 
 t2 = threading.Thread(target=sub_message, args=(client2,))
 t2.start()
+"""
 
-#raspberrypi mqtt communication
-#status_focused thread
-#json com thread
-#thread start
+# raspberrypi mqtt communication
+# status_focused thread
+# json com thread
+# thread start
 
 
+settingDTO_thread = threading.Thread(target=set_setting_info, args=(myMQTTClient,))
+settingDTO_thread.start()
 
 while True:
-
-    # 아두이노 신호 받기
-    get_serial_line(ser)
 
     # focused
     if status_focused == True:
@@ -189,13 +298,14 @@ while True:
         min = temp / 60
         temp = temp % 60
         sec = temp
-
+        """
         display.lcd_display_string("time", 1)
         display.lcd_display_string(str(hour) + " : " + str(min) + " : " + str(sec), 2)
         studying_time += 1
+        """
     # unfocused
-    else:
-        print("alarm")
-        # set alarm
+    # else:
+    # print("main_thread")
+    # set alarm
 
     time.sleep(1)
