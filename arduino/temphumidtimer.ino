@@ -15,7 +15,8 @@ unsigned long countTime = 0; //카운트시작시간
 unsigned long pause_stop = 0;
 unsigned long pause_time = 0;
 int d1, d2, d3, d4;//자리 숫자
-boolean state = false;//타이머 동작 제어 
+boolean state = true;//타이머 동작 제어 
+boolean send = true;
 
 
 void setup()
@@ -35,7 +36,7 @@ void loop()
 {
   delay(1);
   i++;
-  if(i==1000){
+  if(i==1000*60L){
     float temp, humi ; /*온습도 값이 저장될 변수를 만들어줍니다. 온습도값이
                       소수점이기때문에 float변수를 사용했습니다.
 */
@@ -86,12 +87,17 @@ void loop()
       d2 = (millisTime/60)%60;//10의 자리
       d3 = (millisTime/3600)%60;//100의 자리
 
-     
-      Serial.print("0\n");
-    }
+      if(send==false){
+        Serial.print("0\n");
+        send=!send;
+        }
+      }
   }
   else{
-      Serial.print("1\n"); 
+    if(send==true){
+      Serial.print("1\n");
+      send=!send; 
+    }
   }
 }
 
