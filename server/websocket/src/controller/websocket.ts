@@ -7,6 +7,7 @@ export function middleWebsocket(
   userMap: Map<WebSocket, string>
 ) {
   wss.on('connection', function (ws, req) {
+    console.log('Start verifying token');
     try {
       const token = verify(
         decodeURI(<string>req.url?.split('/')[2])
