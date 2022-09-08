@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "measurement_data")
 public class MeasurementData {
-    private Float temperature;
-    private Float humidity;
+    private String temperature;
+    private String humidity;
     private LocalDateTime timestamp;
     @Length(max = 45, message = "Maximum length of address is 45")
     private String raspberrypiAddress;
