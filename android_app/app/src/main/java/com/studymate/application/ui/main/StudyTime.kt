@@ -62,13 +62,13 @@ fun StudyTime(
                 .padding(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "현재 집중 시간", style = MaterialTheme.typography.body1)
+            Text(text = "최근 집중 시간", style = MaterialTheme.typography.body1)
             Text(
                 text = "${Duration.parse(currentFocusTime.replace("\"", "")).inWholeMinutes}분",
                 style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.height(20.dp))
-            Text(text = "현재 총 공부 시간", style = MaterialTheme.typography.body1)
+            Text(text = "최근 총 공부 시간", style = MaterialTheme.typography.body1)
             Text(
                 text = "${Duration.parse(currentNonFocusTime.replace("\"", "")).inWholeMinutes}분",
                 style = MaterialTheme.typography.h3

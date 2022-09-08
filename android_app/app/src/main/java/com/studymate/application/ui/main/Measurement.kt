@@ -48,7 +48,7 @@ fun Measurement(openDrawer: () -> Unit) {
         for (measurementData in measurementDataList) {
             val localDate = LocalDateTime.parse(measurementData.timestamp).toLocalDate()
             val localTime = LocalDateTime.parse(measurementData.timestamp).toLocalTime()
-            Text(text = "${localDate.dayOfMonth}일 ${localTime.hour}시 ${localTime.minute}분 : 온도 ${measurementData.temperature}, 습도 ${measurementData.humidity}",
+            Text(text = "${localDate.dayOfMonth}일 ${localTime.hour}시 ${localTime.minute}분 ${localTime.second}초 : 온도 ${measurementData.temperature}, 습도 ${measurementData.humidity}",
                 modifier = Modifier.padding(top = 16.dp),
                 style = MaterialTheme.typography.body1)
         }
