@@ -15,7 +15,6 @@ spring:
     open-in-view: false
   data:
     mongodb:
-      authentication-database: admin
       username: ${POSTGRES_ID}
       password: ${POSTGRES_PW}
       host: ${MONGODB_ADDRESS}

@@ -1,6 +1,7 @@
 spring:
   data:
     mongodb:
+      authentication-database: study_mate
       database: study_mate
   datasource:
     url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate
