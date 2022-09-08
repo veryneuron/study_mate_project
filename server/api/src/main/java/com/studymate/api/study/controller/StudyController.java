@@ -25,17 +25,17 @@ public class StudyController {
         }
         if (time.equals("current")) {
             if (focus.equals("focus")) {
-                return ResponseEntity.ok(studyService.calculateCurrentFocusStudyTime(userId));
+                return ResponseEntity.ok(removeMilliSecond(studyService.calculateCurrentFocusStudyTime(userId)));
             } else if (focus.equals("non-focus")) {
-                return ResponseEntity.ok(studyService.calculateCurrentNonFocusStudyTime(userId));
+                return ResponseEntity.ok(removeMilliSecond(studyService.calculateCurrentNonFocusStudyTime(userId)));
             } else {
                 throw new IllegalArgumentException("Illegal argument");
             }
         } else if (time.equals("total")) {
             if (focus.equals("focus")) {
-                return ResponseEntity.ok(studyService.calculateTotalFocusStudyTime(userId));
+                return ResponseEntity.ok(removeMilliSecond(studyService.calculateTotalFocusStudyTime(userId)));
             } else if (focus.equals("non-focus")) {
-                return ResponseEntity.ok(studyService.calculateTotalNonFocusStudyTime(userId));
+                return ResponseEntity.ok(removeMilliSecond(studyService.calculateTotalNonFocusStudyTime(userId)));
             } else {
                 throw new IllegalArgumentException("Illegal argument");
             }
@@ -52,5 +52,9 @@ public class StudyController {
         return ResponseEntity.ok(UserStatusDTO.builder()
                 .userStatus(studyService.getUserStatus(userIds))
                 .build());
+    }
+
+    private Duration removeMilliSecond(Duration duration) {
+        return Duration.ofSeconds(duration.getSeconds());
     }
 }
