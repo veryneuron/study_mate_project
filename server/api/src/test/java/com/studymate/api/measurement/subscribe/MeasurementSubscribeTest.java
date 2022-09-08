@@ -44,8 +44,8 @@ class MeasurementSubscribeTest {
     void subscribeMeasureDataNormalTest() throws JsonProcessingException {
         mapper.registerModule(new JavaTimeModule());
         MeasurementData measurementData = MeasurementData.builder()
-                .temperature(37.5f)
-                .humidity(75.12f)
+                .temperature("37.5")
+                .humidity("75.12")
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.102")
                 .userId("test")

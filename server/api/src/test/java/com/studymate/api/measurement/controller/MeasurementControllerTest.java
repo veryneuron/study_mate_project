@@ -61,22 +61,22 @@ class MeasurementControllerTest {
         studyTimeRepository.deleteAll();
         studyRecordRepository.deleteAll();
         MeasurementData measurementData = MeasurementData.builder()
-                .temperature(37.5f)
-                .humidity(75.12f)
+                .temperature("37.5")
+                .humidity("75.12")
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.102")
                 .userId("test")
                 .build();
         MeasurementData measurementData2 = MeasurementData.builder()
-                .temperature(25.6f)
-                .humidity(82.10f)
+                .temperature("25.6")
+                .humidity("82.10")
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.102")
                 .userId("test")
                 .build();
         MeasurementData measurementData3 = MeasurementData.builder()
-                .temperature(41.2f)
-                .humidity(72.11f)
+                .temperature("41.2")
+                .humidity("72.11")
                 .timestamp(LocalDateTime.now())
                 .raspberrypiAddress("123.456.789.103")
                 .userId("test10")
