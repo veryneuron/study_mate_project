@@ -129,6 +129,8 @@ public class StudyTime {
                 latestStudyRecord.setEndTimestampWithRecordTime(inputLatestEndTimestamp);
                 if (latestStudyRecord.getRecordTime() != null && focusTime != null) {
                     focusTime = focusTime.plus(latestStudyRecord.getRecordTime());
+                } else if (getCalculatedFocusTime() != null) {
+                    focusTime = getCalculatedFocusTime();
                 }
             }
         } else {
