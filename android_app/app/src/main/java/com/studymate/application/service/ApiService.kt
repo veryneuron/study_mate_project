@@ -56,7 +56,8 @@ interface ApiService {
             val gson = GsonBuilder().create()
             if (apiService == null) {
                 apiService = Retrofit.Builder()
-                    .baseUrl("https://ec2-13-231-168-213.ap-northeast-1.compute.amazonaws.com/api/")
+                    .baseUrl("https://ec2-18-183-112-167.ap-northeast-1.compute.amazonaws.com/api/")
+//                    .baseUrl("https://192.168.50.17/api/")
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(okhttpClient(context))

@@ -50,7 +50,8 @@ class WebSocketViewModel(context: Context, token: String) : ViewModel() {
     private val apiService = ApiService.getInstance(context)
 
     init {
-        val request = Request.Builder().url("wss://ec2-13-231-168-213.ap-northeast-1.compute.amazonaws.com/websocket/{$token}").build()
+        val request = Request.Builder().url("wss:/ec2-18-183-112-167.ap-northeast-1.compute.amazonaws.com/websocket/{$token}").build()
+//        val request = Request.Builder().url("wss://192.168.50.17/websocket/{$token}").build()
         val listener = object: WebSocketListener() {
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
