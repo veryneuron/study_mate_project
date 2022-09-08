@@ -21,6 +21,8 @@ import com.studymate.application.ui.theme.ApplicationTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.getSharedPreferences(this.getString(R.string.app_name), Context.MODE_PRIVATE)
+            .edit().clear().apply()
         setContent {
             ApplicationTheme {
                 Surface(
