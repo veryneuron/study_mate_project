@@ -11,12 +11,17 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.studymate.application.data.ConnData
 import com.studymate.application.service.ApiService
+import com.studymate.application.service.AuthInterceptor
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import java.lang.ref.WeakReference
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 import kotlin.time.Duration
 
 class UserState(
@@ -43,7 +48,7 @@ class UserState(
 
 class WebSocketViewModel(context: Context, token: String) : ViewModel() {
     private var ws: WebSocket? = null
-    private val client by lazy { OkHttpClient() }
+    private val client = okhttpClient(context)
     var userStateList = mutableStateListOf<UserState>()
     private val currentContext : WeakReference<Context> = WeakReference(context)
     private val gson = Gson()
@@ -62,6 +67,30 @@ class WebSocketViewModel(context: Context, token: String) : ViewModel() {
             }
         }
         ws = client.newWebSocket(request, listener)
+    }
+
+    private fun okhttpClient(context: Context): OkHttpClient {
+        // Create a trust manager that does not validate certificate chains
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+            }
+
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+            }
+
+            override fun getAcceptedIssuers() = arrayOf<X509Certificate>()
+        })
+
+        // Install the all-trusting trust manager
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+        // Create an ssl socket factory with our all-trusting manager
+        val sslSocketFactory = sslContext.socketFactory
+        return OkHttpClient().newBuilder()
+            .addInterceptor(AuthInterceptor(context))
+            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+            .hostnameVerifier { _, _ -> true }
+            .build()
     }
 
     fun onStop() {
