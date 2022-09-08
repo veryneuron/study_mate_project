@@ -24,10 +24,10 @@ data class UserStatus(
 )
 
 data class MeasurementData(
-    var temperature : Float,
-    var humidity : Float,
+    var temperature : String,
+    var humidity : String,
     var timestamp: String,
-    var rasberrypiAddress: String,
+    var raspberrypiAddress: String,
     var userId: String,
 )
 
