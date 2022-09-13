@@ -1,7 +1,5 @@
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
-
 import drivers
-
 import netifaces as ni
 import threading
 import time
@@ -24,39 +22,34 @@ global endTimestamp
 
 startTimestamp = None
 endTimestamp = None
-
 userId = None
 temperatureSetting = None
 humiditySetting = None
-
 raspberrypiAddress = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
+
 
 # arduino
 global status_start
 global temper
 global humi
 global is_received
-status_start = False
-temper = 0
-humi = 0
-is_received = False
-
 global serial_status
-serial_status = False
-
 global myMQTTClient
 
+status_start = False
+is_received = False
+serial_status = False
+temper = 0
+humi = 0
+
+
 # lcd
-
 display = drivers.Lcd()
-
 studying_time = 0
 temp = 0
 hour = 0
 mins = 0
 sec = 0
-
-UPDATE_TIME = 60
 
 
 def callback(self, params, packet):
@@ -116,6 +109,7 @@ def callback(self, params, packet):
 
                 serial_status = False
 
+                
 def send_time_stamp(status_start, client):
 
     if status_start == False:
@@ -188,7 +182,6 @@ def get_serial_line(ser, client):
                     serial_status = True
 
 
-
 def get_setting_info(json_data):
     global userId
     global temperatureSetting
@@ -196,7 +189,6 @@ def get_setting_info(json_data):
     global raspberrypiAddress
 
     dict = json_data.loads(json_data)
-
     userId = dict['userId']
     raspberrypiAddress = dict['rasberrypiAddress']
 
@@ -231,7 +223,7 @@ def set_setting_info(client):
             serial_status = False
 
 
-# 수정
+
 myMQTTClient = AWSIoTMQTTClient("pi")
 myMQTTClient.configureEndpoint("a27cn38pezif4g-ats.iot.ap-northeast-1.amazonaws.com", 8883)
 myMQTTClient.configureCredentials("/home/pi/aws_certificate/RootCA.cer",
@@ -256,45 +248,14 @@ ser = serial.Serial(port, baudrate=brate, timeout=None)
 serial_thread = threading.Thread(target=get_serial_line, args=(ser, myMQTTClient,))
 serial_thread.start()
 
-"""
-##mqtt연결
-mqttc = mqtt.Client("laptop")
-mqttc.connect("172.20.10.9", 1883)
-##mqtt 상태 초기화
-mqttc.subscribe("#", 1, )
 
-#client1 <- RasberrySettingDTO
-client1 = mqtt.Client("server")
-client1.connect("127.0.0.1")
-client1.subscribe("setting")
-client1.on_message = on_message_server
-
-t = threading.Thread(target=sub_message, args=(client1,))
-t.start()
-
-#client2 <- RaspberrypiServer
-client2 = mqtt.Client("pi")
-client2.connect("")
-client2.subscribe("status")
-client2.on_message = on_message_pi
-
-t2 = threading.Thread(target=sub_message, args=(client2,))
-t2.start()
-"""
-
-# raspberrypi mqtt communication
-# status_focused thread
-# json com thread
-# thread start
-
-
+# settingDTO Thread (raspi <-> server)
 settingDTO_thread = threading.Thread(target=set_setting_info, args=(myMQTTClient,))
 settingDTO_thread.start()
     
 
 while True:
-
-    
+  
     # focused
     if status_start == True:
         temp = studying_time
@@ -306,12 +267,6 @@ while True:
         
         display.lcd_display_string("time", 1)
         display.lcd_display_string(str(hour) + " : " + str(mins) + " : " + str(sec), 2)
-        studying_time += 1
-    
-        
-    # unfocused
-    # else:
-    # print("main_thread")
-    # set alarm
+        studying_time += 1   
 
     time.sleep(1)
