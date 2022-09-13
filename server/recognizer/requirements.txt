@@ -1,0 +1,6 @@
+numpy==1.23.2
+scipy==1.9.1
+dlib~=19.24.0
+opencv-python~=4.6.0.66
+awsiotsdk~=1.11.5
+awscrt==0.14.3

@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: prod
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_ID}
+    password: ${POSTGRES_PW}
+    hikari:
+      connectionTimeout: 10000
+      maximumPoolSize: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    open-in-view: false
+  data:
+    mongodb:
+      username: ${POSTGRES_ID}
+      password: ${POSTGRES_PW}
+      host: ${MONGODB_ADDRESS}
+      port: 27017
+server:
+  port: 8000
+secret-key: ${JWT_SECRET}
+aws:
+  client-id: ${AWS_CLIENT_ID}
+  cert-path: ${AWS_CERT_PATH}
+  key-path: ${AWS_KEY_PATH}
+  cert-auth-path: ${AWS_CERT_AUTH_PATH}
+  endpoint: ${AWS_ENDPOINT}

@@ -1,0 +1,23 @@
+spring:
+  data:
+    mongodb:
+      authentication-database: study_mate
+      database: study_mate
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_ADDRESS}:5432/study_mate
+  security:
+    user:
+      name: ${POSTGRES_ID}
+      password: ${POSTGRES_PW}
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
+server:
+  error:
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+logging:
+  level:
+    root: info
