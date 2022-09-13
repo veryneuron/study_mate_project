@@ -1,9 +1,9 @@
 package com.studymate.application.ui.main
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
@@ -35,22 +35,23 @@ fun Measurement(openDrawer: () -> Unit) {
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())
-        .padding(bottom = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        MainTopBar(
-            title = DrawerScreens.Measurement.title,
-            buttonIcon = Icons.Filled.Menu,
-            onButtonClicked = { openDrawer() }
-        )
-        for (measurementData in measurementDataList) {
+    LazyColumn {
+        item {
+            MainTopBar(
+                title = DrawerScreens.Measurement.title,
+                buttonIcon = Icons.Filled.Menu,
+                onButtonClicked = { openDrawer() }
+            )
+        }
+        items(measurementDataList) { measurementData ->
             val localDate = LocalDateTime.parse(measurementData.timestamp).toLocalDate()
             val localTime = LocalDateTime.parse(measurementData.timestamp).toLocalTime()
-            Text(text = "${localDate.dayOfMonth}일 ${localTime.hour}시 ${localTime.minute}분 ${localTime.second}초 : 온도 ${measurementData.temperature}, 습도 ${measurementData.humidity}",
+            Text(
+                text = "${localDate.dayOfMonth}일 ${localTime.hour}시 ${localTime.minute}분 ${localTime.second}초 : 온도 ${measurementData.temperature}, 습도 ${measurementData.humidity}",
                 modifier = Modifier.padding(top = 16.dp),
-                style = MaterialTheme.typography.body1)
+                style = MaterialTheme.typography.body1
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
