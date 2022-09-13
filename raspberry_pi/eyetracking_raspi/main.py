@@ -1,8 +1,7 @@
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
-"""
 import drivers
-"""
+
 import netifaces as ni
 import threading
 import time
@@ -45,14 +44,16 @@ is_received = False
 global serial_status
 serial_status = False
 
+global myMQTTClient
+
 # lcd
-"""
+
 display = drivers.Lcd()
-"""
+
 studying_time = 0
 temp = 0
 hour = 0
-min = 0
+mins = 0
 sec = 0
 
 UPDATE_TIME = 60
@@ -63,8 +64,11 @@ def callback(self, params, packet):
     global userId
     global startTimestamp
     global endTimestamp
+    global myMQTTClient
+    global status_start
 
     topic = str(packet.topic)
+    payload = str(packet.payload.decode('UTF-8'))
 
     if topic == "setting":
 
@@ -77,40 +81,71 @@ def callback(self, params, packet):
             userId = dict['userId']
 
     elif topic == "status/focused":
+        if status_start == True:
+            # focus -> unfocus
+            if payload == 'False':
 
-        # focus -> unfocus
-        if str(packet.payload) == False:
+                endTimestamp = datetime.datetime.now().replace(microsecond=0).isoformat()
 
-            endTimestamp = datetime.datime.now().replace(microsecond=0).isoformat()
+                json_obj = {
+                    'userId': userId,
+                    'startTimestamp': None,
+                    'endTimestamp': endTimestamp
+                }
 
-            json_obj = {
-                'userId': userId,
-                'startTimestamp': None,
-                'endTimestamp': endTimestamp
-            }
+                json_string = json.dumps(json_obj)
 
-            json_string = json.dumps(json_obj)
+                myMQTTClient.publish("study_record", json_string, 0)
 
-            client.publish("study_record", json_string, 1)
-
-            serial_status = False
+                serial_status = False
 
 
-        elif str(packet.payload) == True:
+            elif payload == 'True':
+                print("packet true")
+                startTimestamp = datetime.datetime.now().replace(microsecond=0).isoformat()
 
-            startTimestamp = datetime.datime.now().replace(microsecond=0).isoformat()
+                json_obj = {
+                    'userId': userId,
+                    'startTimestamp': startTimestamp,
+                    'endTimestamp': None
+                }
 
-            json_obj = {
-                'userId': userId,
-                'startTimestamp': startTimestamp,
-                'endTimestamp': None
-            }
+                json_string = json.dumps(json_obj)
 
-            json_string = json.dumps(json_obj)
+                myMQTTClient.publish("study_record", json_string, 0)
 
-            client.publish("study_record", json_string, 1)
+                serial_status = False
 
-            serial_status = False
+def send_time_stamp(status_start, client):
+
+    if status_start == False:
+
+        endTimestamp = datetime.datetime.now().isoformat()
+
+        json_obj = {
+            'userId': userId,
+            'startTimestamp': None,
+            'endTimestamp': endTimestamp
+        }
+
+        json_string = json.dumps(json_obj)
+
+        client.publish("study_time", json_string, 0)
+
+    if status_start == True:
+
+        startTimestamp = datetime.datetime.now().isoformat()
+
+        json_obj = {
+            'userId': userId,
+            'startTimestamp': startTimestamp,
+            'endTimestamp': None
+        }
+
+        json_string = json.dumps(json_obj)
+
+        client.publish("study_time", json_string, 0)
+
 
 
 def get_serial_line(ser, client):
@@ -129,62 +164,29 @@ def get_serial_line(ser, client):
                 print('error')
                 pass
 
-            print("line : " + str(line))
-            # print("is_received :" + str(is_received))
-            # unfocused
-            if line == '1':
+            #시작x
+            if line == '0':
                 status_start = False
+                send_time_stamp(status_start, myMQTTClient)
 
-                if is_received == True:
-                    is_received = False
-
-                    print("is_received set false")
-
-                    endTimestamp = datetime.datime.now().replace(microsecond=0).isoformat()
-
-                    json_obj = {
-                        'userId': userId,
-                        'startTimestamp': None,
-                        'endTimestamp': endTimestamp
-                    }
-
-                    json_string = json.dumps(json_obj)
-
-                    client.publish("study_time", json_string, 1)
-
-
-            # focused
-            elif line == '0':
+            #시작
+            elif line == '1':
                 status_start = True
-
-                if is_received == False:
-                    is_received = True
-
-                    startTimestamp = datetime.datetime.now().replace(microsecond=0).isoformat()
-
-                    json_obj = {
-                        'userId': userId,
-                        'startTimestamp': startTimestamp,
-                        'endTimestamp': None
-                    }
-
-                    json_string = json.dumps(json_obj)
-
-                    client.publish("study_time", json_string, 1)
-
+                send_time_stamp(status_start, myMQTTClient)
 
             # temp
             else:
                 if line[0:4] == 'temp':
                     data = line[4:9]
-                    print("temp: " + data)
+                    #print("temp: " + data)
                     temper = float(data)
 
                 elif line[0:4] == 'humi':
                     data = line[4:9]
-                    print("humi: " + data)
+                    #print("humi: " + data)
                     humi = float(data)
                     serial_status = True
+
 
 
 def get_setting_info(json_data):
@@ -216,9 +218,10 @@ def set_setting_info(client):
 
             json_obj = {
                 'userId': userId,
-                'temperatureSetting': temperatureSetting,
-                'humiditySetting': humiditySetting,
-                'rasberrypiAddress': raspberrypiAddress
+                'temperature': temperatureSetting,
+                'humidity': humiditySetting,
+                'timestamp' : datetime.datetime.now().replace(microsecond=0).isoformat(),
+                'raspberrypiAddress': raspberrypiAddress
             }
 
             json_string = json.dumps(json_obj)
@@ -287,22 +290,25 @@ t2.start()
 
 settingDTO_thread = threading.Thread(target=set_setting_info, args=(myMQTTClient,))
 settingDTO_thread.start()
+    
 
 while True:
 
+    
     # focused
-    if status_focused == True:
+    if status_start == True:
         temp = studying_time
-        hour = temp / 3600
+        hour = temp // 3600
         temp = temp % 3600
-        min = temp / 60
+        mins = temp // 60
         temp = temp % 60
         sec = temp
-        """
+        
         display.lcd_display_string("time", 1)
-        display.lcd_display_string(str(hour) + " : " + str(min) + " : " + str(sec), 2)
+        display.lcd_display_string(str(hour) + " : " + str(mins) + " : " + str(sec), 2)
         studying_time += 1
-        """
+    
+        
     # unfocused
     # else:
     # print("main_thread")
