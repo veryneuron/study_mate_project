@@ -305,7 +305,7 @@ def main():
                     arr_temp.append(temp)
 
                 if len(arr_temp) == 20:
-                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 10:
+                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 6:
                         start_time = int(time.time())
                         print("start time : " + str(start_time))
                         count_uncon = 0
