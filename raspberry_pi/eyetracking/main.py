@@ -57,7 +57,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
         area_right = cv2.contourArea(cnt_right)
 
         if right:
-            if area_left > 40 and area_right > 40 and count_right < 10:
+            if area_left > 20 and area_right > 20 and count_right < 10:
                 count_right += 1
                 avg_sclera_left[1] += int(area_left)
                 avg_sclera_right[1] += int(area_right)
@@ -69,7 +69,7 @@ def calcul_sclera_avg(thresh, mid, right=False):
                 print("avg_right_eye_sclera_area[right]: " + str(avg_sclera_right[1]))
                 print("right done")
         elif right == False:
-            if area_left > 35 and area_right > 35 and count_left < 10:
+            if area_left > 20 and area_right > 20 and count_left < 10:
                 count_left += 1
                 avg_sclera_left[0] += int(area_left)
                 avg_sclera_right[0] += int(area_right)
