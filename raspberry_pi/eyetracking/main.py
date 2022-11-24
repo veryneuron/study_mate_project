@@ -211,7 +211,7 @@ def set_setting_info(client):
 
     while True:
 
-        if serial_status == True:
+        if serial_status == True and status_start == True:
             temperatureSetting = str(temper)
             humiditySetting = str(humi)
 
