@@ -614,7 +614,7 @@ def main():
                 # cv2.imshow("thresh", _thresh)
                 print("")
 
-        if face_count == 0:
+        if count_left > 10 and count_right > 10 and face_count == 0 and count_uncon < 5:
             # print("absence or turn")
             print("부저 시작")
             p.start(50)
