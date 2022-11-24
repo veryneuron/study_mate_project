@@ -231,21 +231,23 @@ def set_setting_info(client):
 
 def print_time_lcd():
     # focused
-    if status_start == True:
-        temp = studying_time
-        hour = temp // 3600
-        temp = temp % 3600
-        mins = temp // 60
-        temp = temp % 60
-        sec = temp
 
-        print("lcd working...")
+    while True:
+        if status_start == True:
+            temp = studying_time
+            hour = temp // 3600
+            temp = temp % 3600
+            mins = temp // 60
+            temp = temp % 60
+            sec = temp
 
-        display.lcd_display_string("time", 1)
-        display.lcd_display_string(str(hour) + " : " + str(mins) + " : " + str(sec), 2)
-        studying_time += 1
+            print("lcd working...")
 
-    time.sleep(1)
+            display.lcd_display_string("time", 1)
+            display.lcd_display_string(str(hour) + " : " + str(mins) + " : " + str(sec), 2)
+            studying_time += 1
+
+        time.sleep(1)
 
 
 myMQTTClient = AWSIoTMQTTClient("pi")
