@@ -106,8 +106,8 @@ fun Monitoring(openDrawer: () -> Unit, token: String?, userId: String) {
                     } else {
                         Text(text = "${userState.userId}님의 공부시간")
                     }
-                    Text(text = "현재 공부시간 : ${userState.studyTime.inWholeMinutes}분" +
-                            " ${userState.studyTime.inWholeSeconds.rem(60)}초")
+//                    Text(text = "현재 공부시간 : ${userState.studyTime.inWholeMinutes}분" +
+//                            " ${userState.studyTime.inWholeSeconds.rem(60)}초")
                     Text(text = "현재 집중시간 : ${userState.studyRecord.inWholeMinutes}분" +
                             " ${userState.studyRecord.inWholeSeconds.rem(60)}초")
                 }
