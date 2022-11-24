@@ -279,7 +279,7 @@ time_thread.start()
 
 #====================== 부저 ======================
 GPIO.setwarnings(False)
-GPI.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BCM)
 
 buzzer = 23 # GPIO 23번
 scale = [523, 493, 392, 523, 349, 523, 493, 523, 349]
@@ -579,7 +579,8 @@ def main():
                     arr_temp.append(temp)
 
                 if len(arr_temp) == 20:
-                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 6:
+                    if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 10:
+                        print("집중X")
                         start_time = int(time.time())
                         print("start time : " + str(start_time))
                         count_uncon = 0
@@ -587,14 +588,17 @@ def main():
                         # 라즈베리파이로 집중x 신호 전송
                         send_msg(myMQTTClient, "status/focused", "False")
 
+                        print("부저 시작")
                         p.start(50)
                         for i in range(9):
                             p.ChangeFrequency(scale[i])
                             time.sleep(0.4)
                         p.stop()
                         GPIO.cleanup()
+                        print("부저 끝")
 
                     elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
+                        print("집중시작")
                         end_time = int(time.time())
                         count_uncon = 0
                         count_con = 0
