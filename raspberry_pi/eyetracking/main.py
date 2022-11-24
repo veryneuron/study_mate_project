@@ -3,9 +3,8 @@ import cv2
 import numpy as np
 import dlib
 from scipy.spatial import distance
-import time
 import threading
-
+import RPi.GPIO as GPIO
 
 #====================== MQTT 통신 ======================
 import drivers
@@ -245,9 +244,8 @@ def print_time_lcd():
     time.sleep(1)
 
 
-
-
 myMQTTClient = AWSIoTMQTTClient("pi")
+myMQTTClient.configureEndpoint("a27cn38pezif4g-ats.iot.ap-northeast-1.amazonaws.com", 8883)
 myMQTTClient.configureCredentials("/home/pi/aws_certificate/RootCA.cer",
                                   "/home/pi/aws_certificate/private.pem.key",
                                   "/home/pi/aws_certificate/certificate.pem.crt")
@@ -278,6 +276,17 @@ settingDTO_thread.start()
 # time thread
 time_thread = threading.Thread(target=print_time_lcd, args=())
 time_thread.start()
+
+#====================== 부저 ======================
+GPIO.setwarnings(False)
+GPI.setmode(GPIO.BCM)
+
+buzzer = 23 # GPIO 23번
+scale = [523, 493, 392, 523, 349, 523, 493, 523, 349]
+GPIO.setup(buzzer, GPIO.OUT)
+
+p = GPIO.PWM(buzzer, 600)
+
 
 #====================== 집중 판단 알고리즘 ======================
 global count_left
@@ -577,6 +586,13 @@ def main():
                         count_con = 0
                         # 라즈베리파이로 집중x 신호 전송
                         send_msg(myMQTTClient, "status/focused", "False")
+
+                        p.start(50)
+                        for i in range(9):
+                            p.ChangeFrequency(scale[i])
+                            time.sleep(0.4)
+                        p.stop()
+                        GPIO.cleanup()
 
                     elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
                         end_time = int(time.time())
