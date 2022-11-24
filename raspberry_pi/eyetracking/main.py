@@ -231,7 +231,7 @@ def set_setting_info(client):
 
 def print_time_lcd():
     # focused
-
+    global studying_time
     while True:
         if status_start == True:
             temp = studying_time
