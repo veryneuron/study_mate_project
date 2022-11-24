@@ -617,17 +617,20 @@ def main():
                 # cv2.imshow("thresh", _thresh)
                 print("")
 
-        if count_left > 10 and count_right > 10 and face_count == 0 and buzzer_count < 1:
+        if count_left > 10 and count_right > 10 and face_count == 0:
             # print("absence or turn")
-            print("부저 시작")
-            p.start(50)
-            for i in range(9):
-                p.ChangeFrequency(scale[i])
-                time.sleep(0.4)
-            p.stop()
-            buzzer_count += 1
-            #GPIO.cleanup()
-            print("부저 끝")
+
+            if buzzer_count < 1:
+                print("부저 시작")
+                p.start(50)
+                for i in range(9):
+                    p.ChangeFrequency(scale[i])
+                    time.sleep(0.4)
+                p.stop()
+                buzzer_count += 1
+                #GPIO.cleanup()
+                print("부저 끝")
+
             count_uncon += 1
 
         if start_time == 0 and count_left > 10 and count_right > 10 and face_count == 0 and count_uncon >= 30:
