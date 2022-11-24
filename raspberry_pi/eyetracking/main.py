@@ -497,6 +497,8 @@ def main():
     # 기준 얼굴 크기
     base_length = 0
 
+    buzzer_count = 0
+
     time.sleep(2)
 
     cap = cv2.VideoCapture(0)
@@ -510,6 +512,7 @@ def main():
         # cv2.imshow("rtsp", gray)
         # 얼굴 인식
         for face in faces:
+            buzzer_count = 0
             face_count += 1
             shape = predictor(gray, face)
 
@@ -614,7 +617,7 @@ def main():
                 # cv2.imshow("thresh", _thresh)
                 print("")
 
-        if count_left > 10 and count_right > 10 and face_count == 0 and count_uncon < 5:
+        if count_left > 10 and count_right > 10 and face_count == 0 and buzzer_count < 1:
             # print("absence or turn")
             print("부저 시작")
             p.start(50)
@@ -622,6 +625,7 @@ def main():
                 p.ChangeFrequency(scale[i])
                 time.sleep(0.4)
             p.stop()
+            buzzer_count += 1
             #GPIO.cleanup()
             print("부저 끝")
             count_uncon += 1
