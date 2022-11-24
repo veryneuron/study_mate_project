@@ -248,10 +248,9 @@ def print_time_lcd():
 
 
 myMQTTClient = AWSIoTMQTTClient("pi")
-myMQTTClient.configureCredentials("C:/Users/veryn/cert/AmazonRootCA1.pem",
-                                  "C:/Users/veryn/cert/5b91b57f7fea1b0872ed25103368129f3e9247f113e6f266ed69101a5d462800-private.pem.key",
-                                  "C:/Users/veryn/cert/5b91b57f7fea1b0872ed25103368129f3e9247f113e6f266ed69101a5d462800-certificate.pem.crt.txt"
-                                  )
+myMQTTClient.configureCredentials("/home/pi/aws_certificate/RootCA.cer",
+                                  "/home/pi/aws_certificate/private.pem.key",
+                                  "/home/pi/aws_certificate/certificate.pem.crt")
 
 myMQTTClient.configureOfflinePublishQueueing(-1)
 myMQTTClient.configureDrainingFrequency(2)
