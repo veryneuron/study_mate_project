@@ -165,11 +165,13 @@ def get_serial_line(ser, client):
 
             # 시작x
             if line == '0':
+                print("버튼 - 공부 끝")
                 status_start = False
                 send_time_stamp(status_start, myMQTTClient)
 
             # 시작
             elif line == '1':
+                print("버튼 - 공부 시작")
                 status_start = True
                 send_time_stamp(status_start, myMQTTClient)
 
@@ -274,7 +276,7 @@ settingDTO_thread = threading.Thread(target=set_setting_info, args=(myMQTTClient
 settingDTO_thread.start()
 
 # time thread
-time_thread = threading.Thread(target=print_time_lcd, args=())
+time_thread = threading.Thread(target=print_time_lcd, args=([]))
 time_thread.start()
 
 #====================== 부저 ======================
