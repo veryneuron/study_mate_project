@@ -239,6 +239,8 @@ def print_time_lcd():
         temp = temp % 60
         sec = temp
 
+        print("lcd working...")
+
         display.lcd_display_string("time", 1)
         display.lcd_display_string(str(hour) + " : " + str(mins) + " : " + str(sec), 2)
         studying_time += 1
@@ -509,6 +511,7 @@ def main():
 
     while True:
         if status_start == False:
+
             continue
 
         status, frame = cap.read()
