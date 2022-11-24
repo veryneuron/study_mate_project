@@ -595,7 +595,7 @@ def main():
                             p.ChangeFrequency(scale[i])
                             time.sleep(0.4)
                         p.stop()
-                        GPIO.cleanup()
+                        #GPIO.cleanup()
                         print("부저 끝")
 
                     elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
@@ -622,7 +622,7 @@ def main():
                 p.ChangeFrequency(scale[i])
                 time.sleep(0.4)
             p.stop()
-            GPIO.cleanup()
+            #GPIO.cleanup()
             print("부저 끝")
             count_uncon += 1
 
@@ -638,6 +638,7 @@ def main():
         key = cv2.waitKey(1)
         # ESC 입력 시 종료
         if key == 27:
+            GPIO.cleanup()
             break
 
     cap.release()
