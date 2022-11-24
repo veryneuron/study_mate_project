@@ -459,6 +459,8 @@ def eye_aspect_ratio(eye):
 
 
 def main():
+    global status_start
+
     global count_left
     global count_right
 
@@ -504,6 +506,9 @@ def main():
     cap = cv2.VideoCapture(0)
 
     while True:
+        if status_start == False:
+            continue
+
         status, frame = cap.read()
         if not status:
             continue
