@@ -241,13 +241,11 @@ def print_time_lcd():
             temp = temp % 60
             sec = temp
 
-            print("lcd working...")
-
             display.lcd_display_string("time", 1)
-            display.lcd_display_string(str(hour) + " : " + str(mins) + " : " + str(sec), 2)
+            display.lcd_display_string(f"{hour:02d} : {mins:02d} : {sec:02d}", 2)
             studying_time += 1
 
-        time.sleep(1)
+        # time.sleep(0.01)
 
 
 myMQTTClient = AWSIoTMQTTClient("pi")
@@ -270,7 +268,8 @@ port = '/dev/ttyACM0'
 brate = 9600
 
 ser = serial.Serial(port, baudrate=brate, timeout=None)
-
+display.lcd_display_string("time", 1)
+display.lcd_display_string("00 : 00 : 00", 2)
 # arduino serial communication
 serial_thread = threading.Thread(target=get_serial_line, args=(ser, myMQTTClient,))
 serial_thread.start()
