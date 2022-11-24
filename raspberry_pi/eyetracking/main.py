@@ -581,6 +581,14 @@ def main():
                 if len(arr_temp) == 20:
                     if start_time == 0 and count_uncon >= 10 and arr_temp.count(1) > 10:
                         print("집중X")
+
+                        start_time = int(time.time())
+                        print("start time : " + str(start_time))
+                        count_uncon = 0
+                        count_con = 0
+                        # 라즈베리파이로 집중x 신호 전송
+                        send_msg(myMQTTClient, "status/focused", "False")
+
                         print("부저 시작")
                         p.start(50)
                         for i in range(9):
@@ -589,12 +597,6 @@ def main():
                         p.stop()
                         GPIO.cleanup()
                         print("부저 끝")
-                        start_time = int(time.time())
-                        print("start time : " + str(start_time))
-                        count_uncon = 0
-                        count_con = 0
-                        # 라즈베리파이로 집중x 신호 전송
-                        send_msg(myMQTTClient, "status/focused", "False")
 
                     elif start_time != 0 and count_con >= 20 and arr_temp.count(0) > 15:
                         print("집중시작")
