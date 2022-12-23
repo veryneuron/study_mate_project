@@ -16,7 +16,7 @@
 | [최광민](https://github.com/KwangMinChoi1)    | 아두이노     |
 | [박성준](https://github.com/park-sungjune)    | 라즈베리 파이 |
 ## 아키텍처
-![UML-아키텍처](https://user-images.githubusercontent.com/29668913/187029125-3ec58179-c597-470c-993b-b7b9db18e9f9.jpg)
+![UML-아키텍처](https://user-images.githubusercontent.com/29668913/209352908-eb45c195-4d3a-48c7-bbdf-e44e1e31abeb.jpg)
 ## 유스케이스 다이어그램
 ![UML-유스케이스](https://user-images.githubusercontent.com/29668913/187206625-accfe3a9-606c-49e0-8cb5-b75dcce30129.jpg)
 ## 각 기능별 설명
